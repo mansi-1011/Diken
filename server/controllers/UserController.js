@@ -6,60 +6,14 @@ import Jwt from "jsonwebtoken";
 
 const { toLower } = lodash;
 export default class UserController {
-  static async test(req, res) {
-    res.json({
-      message: "This is From Routes",
-    });
-  }
-
-  static async register(req, res) {
-    try {
-      const { name, email, password, telephone, status } = req.body;
-      const { userIpAddress } = req;
-      const existingUser = await User.findByEmail(toLower(email));
-      if (existingUser) {
-        res.json({
-          status: false,
-          message: "Email Already in Use",
-        });
-      } else {
-        var newPassword = await bcrypt.hash(password, 10);
-        const formattedDate = new Date()
-          .toISOString()
-          .slice(0, 19)
-          .replace("T", " ");
-
-        await User.create({
-          name: toLower(name),
-          email: toLower(email),
-          password: newPassword,
-          telephone,
-          ip: userIpAddress,
-          status,
-          create_at: formattedDate,
-        });
-
-        res.json({
-          status: true,
-          message: "User Created Successfully....",
-        });
-      }
-    } catch (error) {
-      res.json({
-        status: false,
-        message: error.message || "Email Already in Use",
-      });
-    }
-  }
-
   static async login(req, res) {
     try {
-      const { email, password } = req.body;
-      const user = await User.findByEmail(toLower(email));
+      const { username , password } = req.body;
+      const user = await User.findByUsername(toLower(username));
       if (!user) {
         res.json({
           status: false,
-          message: "Invalid User Email..",
+          message: "Invalid User Name..",
         });
       } else {
         const PassConfirm = await bcrypt.compare(password, user.password);
@@ -74,11 +28,18 @@ export default class UserController {
               expiresIn: 60 * process.env.JWT_TIME,
             }
           );
-
+          res.setHeader(
+            "Set-Cookie",
+            `authToken=${token}; HttpOnly; Max-Age=${
+              60 * process.env.JWT_TIME
+            }; Path=/`
+          );
+            
           res.json({
             status: true,
             message: "User Logged In...",
             token: token,
+            user:user
           });
         } else {
           res.json({
@@ -88,6 +49,7 @@ export default class UserController {
         }
       }
     } catch (error) {
+      console.log(error ,"error");
       res.json({
         status: false,
         message:

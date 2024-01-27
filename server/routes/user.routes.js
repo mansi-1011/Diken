@@ -18,10 +18,6 @@ route.use(
   })
 );
 
-route.get("/", UserController.test);
-
-route.post("/register", UserController.register);
-
-route.post("/login", UserController.login);
+route.post("/auth", UserController.login);
 
 export default route;
