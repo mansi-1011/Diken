@@ -39,10 +39,10 @@ export default function Login() {
           console.log(data)
           if (data.status === true) {
             // dispatch(userData(data.business_info));
-            route.replace("/dashboard");
-            // action.resetForm();
+            route.replace("/home");
+            action.resetForm();
           } else {
-            // toast.error(data.msg);
+            toast.error(data.message);
           }
       setLoading(false);
 
