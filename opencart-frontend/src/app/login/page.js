@@ -31,21 +31,20 @@ export default function Login() {
     initialValues: initialLogin,
     validationSchema: loginScheme,
     onSubmit: async (e, action) => {
-      console.log(e)
-      
-      setLoading(true);
-          const data = await postAPI("/api/user/auth", e);
-          // print(data);
-          console.log(data)
-          if (data.status === true) {
-            // dispatch(userData(data.business_info));
-            route.replace("/dashboard");
-            // action.resetForm();
-          } else {
-            // toast.error(data.msg);
-          }
-      setLoading(false);
+      console.log(e);
 
+      setLoading(true);
+      const data = await postAPI("/api/user/auth", e);
+      // print(data);
+      console.log(data);
+      if (data.status === true) {
+        // dispatch(userData(data.business_info));
+        route.replace("/home");
+        action.resetForm();
+      } else {
+        toast.error(data.message);
+      }
+      setLoading(false);
     },
   });
 
@@ -56,7 +55,6 @@ export default function Login() {
         <form className={style.login_form} onSubmit={handleSubmitL}>
           <div>
             <p>Sign in</p>
-
           </div>
 
           <div className={style.form_control}>
@@ -113,8 +111,6 @@ export default function Login() {
             </span>
           </div> */}
         </form>
-
-
       </div>
     </>
   );

@@ -8,7 +8,7 @@ const { toLower } = lodash;
 export default class UserController {
   static async login(req, res) {
     try {
-      const { username , password } = req.body;
+      const { username, password } = req.body;
       const user = await User.findByUsername(toLower(username));
       if (!user) {
         res.json({
@@ -28,18 +28,17 @@ export default class UserController {
               expiresIn: 60 * process.env.JWT_TIME,
             }
           );
-          res.setHeader(
-            "Set-Cookie",
-            `authToken=${token}; HttpOnly; Max-Age=${
-              60 * process.env.JWT_TIME
-            }; Path=/`
-          );
-            
+          res.cookie("authToken", token, {
+            maxAge: 60 * process.env.JWT_TIME * 1000,
+            secure:true,
+            sameSite: "None",
+            path: "/", 
+          });
           res.json({
             status: true,
             message: "User Logged In...",
             token: token,
-            user:user
+            user: user,
           });
         } else {
           res.json({
@@ -49,7 +48,7 @@ export default class UserController {
         }
       }
     } catch (error) {
-      console.log(error ,"error");
+      console.log(error, "error");
       res.json({
         status: false,
         message:
