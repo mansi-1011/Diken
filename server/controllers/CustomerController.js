@@ -7,11 +7,6 @@ import useragent from "express-useragent";
 
 const { toLower } = lodash;
 export default class CustomerController {
-  static async test(req, res) {
-    res.json({
-      message: "This is From Routes",
-    });
-  }
 
   static async register(req, res) {
     try {

@@ -3,7 +3,7 @@ import express from "express";
 import cors from "cors";
 
 import userRoutes from "./routes/user.routes.js";
-import customerRoutes from "./routes/user.routes.js";
+import customerRoutes from "./routes/customer.routes.js";
 
 const URL = process.env.HOST_URL;
 const HOST = process.env.HOST;
