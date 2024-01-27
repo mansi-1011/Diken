@@ -34,16 +34,17 @@ export default function Login() {
       console.log(e);
 
       setLoading(true);
-      const data = await postAPI("/api/user/auth", e);
-      // print(data);
-      console.log(data);
-      if (data.status === true) {
-        // dispatch(userData(data.business_info));
-        route.replace("/home");
-        action.resetForm();
-      } else {
-        toast.error(data.message);
-      }
+          const data = await postAPI("/api/user/auth", e);
+          // print(data);
+          console.log(data)
+          if (data.status === true) {
+            // dispatch(userData(data.business_info));
+            route.replace("/home");
+            action.resetForm();
+          } else {
+            toast.error(data.message);
+          }
+
       setLoading(false);
     },
   });
