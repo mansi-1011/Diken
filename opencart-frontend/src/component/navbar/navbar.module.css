@@ -1,0 +1,10 @@
+
+.navbar {
+    height: 56px;
+    padding: 0px 30px;
+    background: url(../../assets/header.png);
+    min-width: 900px;
+    align-items: center;
+    display: flex;
+}
+
