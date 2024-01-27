@@ -1,6 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
+import cookieParser from "cookie-parser"; 
 
 import userRoutes from "./routes/user.routes.js";
 import customerRoutes from "./routes/customer.routes.js";
@@ -10,7 +11,7 @@ const HOST = process.env.HOST;
 const PORT = process.env.PORT || 8000;
 
 const app = express();
-
+app.use(cookieParser());
 app.use(
   cors({
     origin: `${process.env.FRONT_URL}`,

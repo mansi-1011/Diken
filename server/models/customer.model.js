@@ -3,21 +3,21 @@ import lodash from "lodash";
 const { _ } = lodash;
 
 const customer = {
-  create: async (userData) => {
+  create: async (customerData) => {
     try {
 
       const result = await queryAsync(
-        "INSERT INTO `customer`(`name`, `email`, `telephone`, `password`, `ip`, `status`, `token`, `create_at`, `device_info`) VALUES (?, ?, ?, ?, ?, ?, ?,?,?,?)",
+        "INSERT INTO `customer`(`name`, `email`, `telephone`, `password`, `ip`, `status`, `token`, `create_at`, `device_info`) VALUES (?, ?, ?, ?, ?, ?, ?,?,?)",
         [
-          userData.name,
-          userData.email,
-          userData.telephone,
-          userData.password,
-          userData.ip,
-          userData.status,
-          userData.token,
-          userData.create_at,
-          userData.device_info,
+          customerData.name,
+          customerData.email,
+          customerData.telephone,
+          customerData.password,
+          customerData.ip,
+          customerData.status,
+          customerData.token,
+          customerData.create_at,
+          customerData.device_info,
         ]
       );
       return result;
