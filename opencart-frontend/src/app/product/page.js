@@ -5,7 +5,7 @@ import React from 'react'
 const product = () => {
   return (
     <div>
-      <Navbar />
+      <Navbar   logout="logout"  />
       <Pages />
     </div>
   )

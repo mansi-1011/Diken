@@ -5,6 +5,13 @@
     background: url(../../assets/header.png);
     min-width: 900px;
     align-items: center;
+    justify-content: space-between;
     display: flex;
 }
-
+.logout {
+    color: var(--lgray);
+    cursor: pointer;
+}
+.logout:hover {
+    color: #e56b6b;
+}
