@@ -6,7 +6,7 @@ import Jwt from "jsonwebtoken";
 import useragent from "express-useragent";
 
 const { toLower } = lodash;
-export default class UserController {
+export default class CustomerController {
   static async test(req, res) {
     res.json({
       message: "This is From Routes",
@@ -68,18 +68,6 @@ export default class UserController {
       } else {
         const PassConfirm = await bcrypt.compare(password, user.password);
         if (PassConfirm) {
-          // const deviceInfo = {
-          //   browser: useragent.browser,
-          //   version: useragent.version,
-          //   os: useragent.os,
-          //   platform: useragent.platform,
-          //   isMobile: useragent.isMobile,
-          //   isDesktop: useragent.isDesktop,
-          //   isBot: useragent.isBot,
-          // };
-        
-          // // const userAgent = expressUserAgent.parse(req.headers["user-agent"]);
-          // console.log(useragent ,"expressUserAgent");
           const token = Jwt.sign(
             {
               name: user.name,
@@ -90,6 +78,28 @@ export default class UserController {
               expiresIn: 60 * process.env.JWT_TIME,
             }
           );
+
+          if (!user.device_info || user.device_info === 'UNSET') {
+            // Assuming model_account_customer is accessible here
+            const hello = model_account_customer.editDeviceInfo(req.body.device_info);
+            console.log(hello ,"hello");
+          } else {
+            // Checking if device_info is not empty and not 'UNSET'
+            const unserializedData = JSON.parse(user.device_info);
+            user.device_info = unserializedData;
+  
+            if (unserializedData !== req.body.device_info) {
+              // Log out the user and set error message
+              // Implement your customer logout logic here
+              const json = {
+                error: "Invalid device, please login from registered device",
+                success: false
+              };
+              // Handle the JSON object as needed
+              res.json(json);
+              return;
+            }
+          }
 
           res.json({
             status: true,
