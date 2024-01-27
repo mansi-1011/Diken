@@ -32,6 +32,7 @@ export default function Login() {
     validationSchema: loginScheme,
     onSubmit: async (e, action) => {
       console.log(e)
+      
       setLoading(true);
           const data = await postAPI("/api/user/auth", e);
           // print(data);
