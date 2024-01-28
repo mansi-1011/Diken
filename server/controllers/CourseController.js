@@ -137,18 +137,17 @@ export default class CourseController {
 
       const conditions = `1 ${search_query}`;
 
-      const customers = await customer.findAll(
+      const coursesWithCourseData = await courses.findAllWithCourseData(
         conditions,
         `${column} ${column_sort_order}`,
         pageSize,
         offset
       );
+      const total_courses = await courses.count(conditions);
 
-      const total_customers = await customer.count(conditions);
+      const total_filter_request = total_courses;
 
-      const total_filter_request = total_customers;
-
-      if (customers.length <= 0) {
+      if (coursesWithCourseData.length <= 0) {
         res.json({
           status: false,
           message: "No data found",
@@ -157,9 +156,9 @@ export default class CourseController {
 
       res.status(200).json({
         draw: draw,
-        iTotalRecords: total_customers,
+        iTotalRecords: total_courses,
         iTotalDisplayRecords: total_filter_request,
-        aaData: customers,
+        aaData: coursesWithCourseData,
       });
     } catch (error) {
       res.json({

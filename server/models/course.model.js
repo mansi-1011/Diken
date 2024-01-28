@@ -2,21 +2,21 @@ import queryAsync from "../lib/db.js";
 
 const courses = {
   create: async (courseData) => {
-    console.log(courseData ,"djfgdhf");
+    console.log(courseData, "djfgdhf");
     try {
       const result = await queryAsync(
         "INSERT INTO `courses`(`course_name`, `course_description`, `course_expired_days`, `course_expired_date`, `course_image`, `course_length`, `course_number_of_videos`, `course_price`, `course_status`, `create_at`) VALUES (?,?,?,?,?,?,?,?,?,?)",
         [
-            courseData.course_name,
-            courseData.course_description,
-            courseData.course_expired_days,
-            courseData.course_expired_date,
-            courseData.course_image,
-            courseData.course_length,
-            courseData.course_number_of_videos,
-            courseData.course_price,
-            courseData.course_status,
-            courseData.create_at,
+          courseData.course_name,
+          courseData.course_description,
+          courseData.course_expired_days,
+          courseData.course_expired_date,
+          courseData.course_image,
+          courseData.course_length,
+          courseData.course_number_of_videos,
+          courseData.course_price,
+          courseData.course_status,
+          courseData.create_at,
         ]
       );
       return result.insertId;
@@ -30,7 +30,7 @@ const courses = {
       const result = await queryAsync(
         "UPDATE `courses` SET `name`=?, `email`=?, `telephone`=?,`ip`=?, `status`=?, `token`=?, `update_at`=?, `device_info`=? WHERE `customer_id`=?",
         [
-            course.name,
+          course.name,
           course.email,
           course.telephone,
           course.ip,
@@ -47,15 +47,44 @@ const courses = {
     }
   },
 
-  findAll: async (conditions, order, limit, offset) => {
-    const query = `
-      SELECT * FROM courses
+  findAllWithCourseData: async (conditions, order, limit, offset) => {
+    try {
+      // const query = `
+      //   SELECT c.*, cd.*
+      //   FROM courses c
+      //   LEFT JOIN course_data cd ON c.course_id = cd.course_id
+      //   WHERE ${conditions}
+      //   GROUP BY c.course_id
+      //   ORDER BY c.${order}
+      //   LIMIT ${limit} OFFSET ${offset}
+      // `;
+      const query = `
+      SELECT c.course_id, c.course_name, c.course_description, c.course_expired_days, c.course_expired_date,
+             c.course_image, c.course_length, c.course_number_of_videos, c.course_price, c.course_status,
+             CONCAT('[', GROUP_CONCAT(
+               CONCAT(
+                 '{"course_data_id":', cd.course_data_id, 
+                 ',"course_data_type":"', cd.course_data_type, 
+                 '","course_data_title":"', cd.course_data_title, 
+                 '","course_data_url":"', cd.course_data_url, 
+                 '","course_data_length":"', cd.course_data_length, 
+                 '","course_count_of_view":', cd.course_data_count_of_view, 
+                 ',"course_sort_order":', cd.course_data_sort_order, '}'
+               )
+             ), ']') AS course_data
+      FROM courses c
+      LEFT JOIN course_data cd ON c.course_id = cd.course_id
       WHERE ${conditions}
-      ORDER BY ${order}
+      GROUP BY c.course_id
+      ORDER BY c.${order} 
       LIMIT ${limit} OFFSET ${offset}
     `;
-    const customers = await queryAsync(query);
-    return customers;
+
+      const coursesWithCourseData = await queryAsync(query);
+      return coursesWithCourseData;
+    } catch (error) {
+      throw error;
+    }
   },
 
   count: async (conditions) => {
@@ -70,24 +99,12 @@ const courses = {
   findById: async (customerId) => {
     const query = `
       SELECT c.*, ca.*
-      FROM customer c
-      JOIN customer_address ca ON c.customer_id = ca.customer_id
-      WHERE c.customer_id = ?`;
+      FROM course c
+      JOIN course_data ca ON c.course_id = ca.course_id
+      WHERE c.course_id = ?`;
 
     const rows = await queryAsync(query, [customerId]);
     return rows;
-  },
-
-  updateUserInfo: async (customerId, userInfo) => {
-    const { ip, device_info } = userInfo;
-
-    const query = `
-      UPDATE customer
-      SET ip = ?, device_info = ?
-      WHERE customer_id = ?;
-    `;
-
-    await queryAsync(query, [ip, device_info, customerId]);
   },
 };
 

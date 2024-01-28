@@ -31,9 +31,7 @@ route.use(cookieParser());
 
 route.post("/insert", auth, CourseController.insertCourse);
 
-// route.post("/auth", CustomerController.login);
-
-// route.get("/", auth, CustomerController.getCustomer);
+route.get("/", auth, CourseController.getcourse);
 
 // route.get("/edit/:id", auth, CustomerController.editCustomer);
 
