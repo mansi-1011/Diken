@@ -3,8 +3,10 @@ import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
 import UserController from "../controllers/UserController.js";
+import cookieParser from "cookie-parser"; 
 
 const route = express.Router();
+route.use(cookieParser());
 
 route.use(
   cors({

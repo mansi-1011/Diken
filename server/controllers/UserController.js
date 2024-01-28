@@ -29,10 +29,17 @@ export default class UserController {
             }
           );
           res.cookie("authToken", token, {
-            maxAge: 60 * process.env.JWT_TIME * 1000,
-            secure:true,
+            maxAge: 60 * process.env.JWT_TIME,
+            secure: true,
             sameSite: "None",
-            path: "/", 
+            path: "/",
+          });
+
+          res.cookie("user_role", user.role_name, {
+            maxAge: 60 * process.env.JWT_TIME,
+            secure: true,
+            sameSite: "None",
+            path: "/",
           });
           res.json({
             status: true,
