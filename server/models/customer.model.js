@@ -121,6 +121,22 @@ const customer = {
     const customers = await queryAsync(query);
     return customers;
   },
+
+  getStatesByCountryId: async (countryId) => {
+    try {
+      const query = `
+        SELECT *
+        FROM state
+        WHERE country_id = ?;
+      `;
+
+      const states = await queryAsync(query, [countryId]);
+
+      return states;
+    } catch (error) {
+      throw error;
+    }
+  },
 };
 
 export default customer;

@@ -307,7 +307,7 @@ export default class CustomerController {
 
       res.json({
         status: true,
-        message: "Users and their addresses deleted successfully.",
+        message: "Customer and their addresses deleted successfully.",
       });
     } catch (error) {
       res.json({
@@ -317,7 +317,7 @@ export default class CustomerController {
     }
   }
 
-  static async getCountry(req , res) {
+  static async getCountry(req, res) {
     try {
       const countryData = await customer.country();
 
@@ -332,19 +332,21 @@ export default class CustomerController {
       });
     }
   }
-  // static async getStateByCountryId(req , res) {
-  //   try {
-  //     const countryData = await customer.country();
+  static async getStateByCountryId(req, res) {
+    try {
+      const countryId = req.params.id;
 
-  //     res.json({
-  //       status: true,
-  //       country: countryData,
-  //     });
-  //   } catch (error) {
-  //     res.json({
-  //       status: false,
-  //       message: error.message || "An error occurred while deleting users.",
-  //     });
-  //   }
-  // }
+      const states = await customer.getStatesByCountryId(countryId);
+
+      res.json({
+        status: true,
+        states: states,
+      });
+    } catch (error) {
+      res.json({
+        status: false,
+        message: error.message || "An error occurred while fetching states.",
+      });
+    }
+  }
 }

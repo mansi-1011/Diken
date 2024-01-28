@@ -43,4 +43,6 @@ route.delete("/mlpdelete", auth,CustomerController.deleteMultipleCustomers);
 
 route.get('/country' , auth , CustomerController.getCountry);
 
+route.get('/country/:id' , auth , CustomerController.getStateByCountryId);
+
 export default route;
