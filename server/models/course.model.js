@@ -1,20 +1,22 @@
 import queryAsync from "../lib/db.js";
 
-const customer = {
-  create: async (customerData) => {
+const courses = {
+  create: async (courseData) => {
+    console.log(courseData ,"djfgdhf");
     try {
       const result = await queryAsync(
         "INSERT INTO `courses`(`course_name`, `course_description`, `course_expired_days`, `course_expired_date`, `course_image`, `course_length`, `course_number_of_videos`, `course_price`, `course_status`, `create_at`) VALUES (?,?,?,?,?,?,?,?,?,?)",
         [
-          customerData.name,
-          customerData.email,
-          customerData.telephone,
-          customerData.password,
-          customerData.ip,
-          customerData.status,
-          customerData.token,
-          customerData.create_at,
-          customerData.device_info,
+            courseData.course_name,
+            courseData.course_description,
+            courseData.course_expired_days,
+            courseData.course_expired_date,
+            courseData.course_image,
+            courseData.course_length,
+            courseData.course_number_of_videos,
+            courseData.course_price,
+            courseData.course_status,
+            courseData.create_at,
         ]
       );
       return result.insertId;
@@ -23,20 +25,20 @@ const customer = {
     }
   },
 
-  update: async (customerData) => {
+  update: async (course) => {
     try {
       const result = await queryAsync(
-        "UPDATE `customer` SET `name`=?, `email`=?, `telephone`=?,`ip`=?, `status`=?, `token`=?, `update_at`=?, `device_info`=? WHERE `customer_id`=?",
+        "UPDATE `courses` SET `name`=?, `email`=?, `telephone`=?,`ip`=?, `status`=?, `token`=?, `update_at`=?, `device_info`=? WHERE `customer_id`=?",
         [
-          customerData.name,
-          customerData.email,
-          customerData.telephone,
-          customerData.ip,
-          customerData.status,
-          customerData.token,
-          customerData.update_at,
-          customerData.device_info,
-          customerData.customer_id,
+            course.name,
+          course.email,
+          course.telephone,
+          course.ip,
+          course.status,
+          course.token,
+          course.update_at,
+          course.device_info,
+          course.customer_id,
         ]
       );
       return result.affectedRows;
@@ -45,16 +47,9 @@ const customer = {
     }
   },
 
-  findByEmail: async (email) => {
-    const rows = await queryAsync("SELECT * FROM customer WHERE email = ?", [
-      email,
-    ]);
-    return rows[0];
-  },
-
   findAll: async (conditions, order, limit, offset) => {
     const query = `
-      SELECT * FROM customer
+      SELECT * FROM courses
       WHERE ${conditions}
       ORDER BY ${order}
       LIMIT ${limit} OFFSET ${offset}
@@ -65,7 +60,7 @@ const customer = {
 
   count: async (conditions) => {
     const query = `
-      SELECT COUNT(*) FROM customer
+      SELECT COUNT(*) FROM courses
       WHERE ${conditions}
     `;
     const result = await queryAsync(query);
@@ -96,4 +91,4 @@ const customer = {
   },
 };
 
-export default customer;
+export default courses;

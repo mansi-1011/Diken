@@ -52,6 +52,25 @@ const customerAddress = {
       throw error;
     }
   },
+
+  deleteMultipleByCustomerIds: async (customerIds) => {
+    try {
+      if (!Array.isArray(customerIds) || customerIds.length === 0) {
+        throw new Error("Invalid or empty 'customerIds' array.");
+      }
+
+      const query = `
+        DELETE FROM customer_address
+        WHERE customer_id IN (?);
+      `;
+
+      const result = await queryAsync(query, [customerIds]);
+
+      return result.affectedRows > 0 ? customerIds : [];
+    } catch (error) {
+      throw error;
+    }
+  },
 };
 
 export default customerAddress;

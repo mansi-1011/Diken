@@ -3,188 +3,111 @@ import bcrypt from "bcrypt";
 import lodash from "lodash";
 import Jwt from "jsonwebtoken";
 
-import customer from "../models/customer.model.js";
-import customerAddress from "../models/customerAddress.model.js";
+import courses from "../models/course.model.js";
+import coursesData from "../models/courseData.model.js";
 
 const { toLower } = lodash;
 export default class CourseController {
-  static async insertCustomer(req, res) {
+  static async insertCourse(req, res) {
     try {
-      const { general, address } = req.body;
-      const { customer_id, name, email, password, telephone, status } = general;
+      const data = {
+        course: {
+          course_name: "Early Pregnancy(Ectopic, level-1 Included)",
+          course_description: "hello",
+          course_expired_days: 20,
+          course_image: "storage/public/course_images/test.jpg",
+          course_length: 1.5,
+          course_number_of_videos: 4,
+          course_price: 15000,
+          course_status: 1,
+        },
+        course_data: [
+          {
+            course_data_type: "1",
+            course_data_title: "01 GB  practical",
+            course_data_url:
+              "https://d2cg0216mv93jg.cloudfront.net/1+Gall+Bladder/01+GB++practical.mp4",
+            course_data_length: "55:34",
+            course_count_of_view: 1,
+            course_sort_order: 0,
+          },
+          {
+            course_data_type: "2",
+            course_data_title: "01 GB Ultrasound Class - I",
+            course_data_url:
+              "https://d2cg0216mv93jg.cloudfront.net/1+Gall+Bladder/01+GB+Ultrasound+Class+-+I.mp4",
+            course_data_length: "55:34",
+            course_count_of_view: 1,
+            course_sort_order: 1,
+          },
+        ],
+      };
+      const { course, course_data } = data;
+      //   const { general, address } = req.body;
+      const {
+        course_name,
+        course_description,
+        course_expired_days,
+        course_image,
+        course_length,
+        course_number_of_videos,
+        course_price,
+        course_status,
+      } = course;
+
       const formattedDate = new Date()
         .toISOString()
         .slice(0, 19)
         .replace("T", " ");
 
-      if (customer_id) {
-        await customer.update({
-          customer_id,
-          name: toLower(name),
-          email: toLower(email),
-          // password: await bcrypt.hash(password, 10),
-          telephone,
-          status,
-          update_at: formattedDate,
-        });
-        if (address && address.length > 0) {
-          for (const addr of address) {
-            await customerAddress.update({
-              customer_address_id: addr.customer_address_id,
-              first_name: addr.first_name,
-              last_name: addr.last_name,
-              company: addr.company,
-              company_id: addr.company_id,
-              tax_id: addr.tax_id,
-              address_1: addr.address_1,
-              address_2: addr.address_2,
-              city: addr.city,
-              postcode: addr.postcode,
-              country: addr.country,
-              state: addr.state,
-              default_address: addr.default_address,
-              update_at: formattedDate,
-            });
-          }
-        }
+      let currentDate = new Date();
+      let futureDate = new Date();
+      futureDate.setDate(currentDate.getDate() + course_expired_days);
 
-        res.json({
-          status: true,
-          message: "User Updated Successfully....",
-        });
-      } else {
-        const existingCustomer = await customer.findByEmail(toLower(email));
-        if (existingCustomer) {
-          res.json({
-            status: false,
-            message: "Email Already in Use",
-          });
-        } else {
-          var newPassword = await bcrypt.hash(password, 10);
+      const course_expired_date = futureDate.toISOString().split("T")[0];
 
-          const customerId = await customer.create({
-            name: toLower(name),
-            email: toLower(email),
-            password: newPassword,
-            telephone,
-            ip: 0,
-            status,
-            token: null,
+      const courseId = await courses.create({
+        course_name,
+        course_description,
+        course_expired_days,
+        course_expired_date: course_expired_date,
+        course_image,
+        course_length,
+        course_number_of_videos,
+        course_price,
+        course_status,
+        create_at: formattedDate,
+      });
+
+      if (course_data && course_data.length > 0) {
+        for (const data of course_data) {
+          await coursesData.create({
+            course_id: courseId,
+            course_data_type: data.course_data_type,
+            course_data_title: data.course_data_title,
+            course_data_url: data.course_data_url,
+            course_data_length: data.course_data_length,
+            course_data_count_of_view: data.course_count_of_view,
+            course_data_sort_order: data.course_sort_order,
             create_at: formattedDate,
-            device_info: null,
-          });
-
-          if (address && address.length > 0) {
-            for (const addr of address) {
-              await customerAddress.create({
-                customer_id: customerId,
-                first_name: addr.first_name,
-                last_name: addr.last_name,
-                company: addr.company,
-                company_id: addr.company_id,
-                tax_id: addr.tax_id,
-                address_1: addr.address_1,
-                address_2: addr.address_2,
-                city: addr.city,
-                postcode: addr.postcode,
-                country: addr.country,
-                state: addr.state,
-                default_address: addr.default_address,
-                create_at: formattedDate,
-              });
-            }
-          }
-          res.json({
-            status: true,
-            message: "User Created Successfully....",
           });
         }
       }
+
+      res.json({
+        status: true,
+        message: "Course Created Successfully....",
+      });
     } catch (error) {
       console.log(error, "error");
       res.json({
         status: false,
-        message: error.message || "Email Already in Use",
+        message: error.message,
       });
     }
   }
 
-  static async login(req, res) {
-    try {
-      const { email, password } = req.body;
-      const customerData = await customer.findByEmail(toLower(email));
-      if (!customerData) {
-        res.json({
-          status: false,
-          message: "Invalid User Email..",
-        });
-      } else {
-        const PassConfirm = await bcrypt.compare(
-          password,
-          customerData.password
-        );
-        if (PassConfirm) {
-          const userAgent = req.headers["user-agent"];
-          const parser = new UAParser();
-          const deviceInfo = parser.setUA(userAgent).getResult();
-          const ip = req.userIpAddress;
-
-          if ((!customerData.ip || customerData.ip === '0') && (!customerData.device_info || customerData.device_info === 'null')) {
-            customerData.ip = ip;
-            await customer.updateUserInfo(customerData.customer_id, {
-              ip: ip,
-              device_info: JSON.stringify(deviceInfo),
-            });
-          }
-
-          if (
-            customerData.device_info &&
-            customerData.device_info !== "UNSET"
-          ) {
-            const storedDeviceInfo = JSON.parse(customerData.device_info);
-            if (
-              JSON.stringify(deviceInfo) !== JSON.stringify(storedDeviceInfo)
-            ) {
-              return res.json({
-                status: false,
-                message: "Invalid device, please login from registered device.",
-              });
-            }
-          }
-          const token = Jwt.sign(
-            {
-              name: customerData.name,
-              email: customerData.email,
-            },
-            process.env.JWT_KEY,
-            {
-              expiresIn: 60 * process.env.JWT_TIME,
-            }
-          );
-
-          res.json({
-            status: true,
-            message: "User Logged In...",
-            token: token,
-          });
-        } else {
-          res.json({
-            status: false,
-            message: "Incorrect Password. Please try again.",
-          });
-        }
-      }
-    } catch (error) {
-      console.log(error ,"error");
-      res.json({
-        status: false,
-        message:
-          error.message || "An error occurred while processing the login.",
-      });
-    }
-  }
-
-  static async getCustomer(req, res) {
+  static async getcourse(req, res) {
     try {
       const { draw, start, length, order, search, columns } = req.query;
       let column;
@@ -192,7 +115,7 @@ export default class CourseController {
       let search_value = "";
 
       if (typeof order === "undefined") {
-        column = "customer_id";
+        column = "course_id";
         column_sort_order = "DESC";
       } else {
         search_value = search["value"] || "";

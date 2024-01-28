@@ -93,7 +93,34 @@ const customer = {
     `;
 
     await queryAsync(query, [ip, device_info, customerId]);
-  },  
+  },
+
+  deleteMultiple: async (customerIds) => {
+    try {
+      if (!Array.isArray(customerIds) || customerIds.length === 0) {
+        throw new Error("Invalid or empty 'customerIds' array.");
+      }
+
+      const query = `
+        DELETE FROM customer
+        WHERE customer_id IN (?);
+      `;
+
+      const result = await queryAsync(query, [customerIds]);
+
+      return result.affectedRows > 0 ? customerIds : [];
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  country: async () => {
+    const query = `
+      SELECT * FROM country
+    `;
+    const customers = await queryAsync(query);
+    return customers;
+  },
 };
 
 export default customer;

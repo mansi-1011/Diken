@@ -28,7 +28,6 @@ route.use(
   })
 );
 route.use(cookieParser());
-//
 
 route.post("/auth", CustomerController.login);
 
@@ -39,5 +38,9 @@ route.get("/edit/:id", auth, CustomerController.editCustomer);
 route.post("/insert", auth, CustomerController.insertCustomer);
 
 route.put("/upd", auth, CustomerController.updateCustomer);
+
+route.delete("/mlpdelete", auth,CustomerController.deleteMultipleCustomers);
+
+route.get('/country' , auth , CustomerController.getCountry);
 
 export default route;

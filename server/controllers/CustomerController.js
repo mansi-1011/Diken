@@ -239,7 +239,7 @@ export default class CustomerController {
 
   static async updateCustomer(req, res) {
     try {
-      const { general, address } = req.body;
+      const { general, address } = req.data;
       const { customer_id, name, email, password, telephone, status } = general;
       const {
         customer_address_id,
@@ -260,37 +260,37 @@ export default class CustomerController {
         .slice(0, 19)
         .replace("T", " ");
 
-      // if (customer_id) {
-      await customer.update({
-        customer_id,
-        name: toLower(name),
-        email: toLower(email),
-        // password: await bcrypt.hash(password, 10),
-        telephone,
-        status,
-        update_at: formattedDate,
-      });
-      await customerAddress.update({
-        customer_address_id: customer_address_id,
-        first_name: first_name,
-        last_name: last_name,
-        company: company,
-        company_id: company_id,
-        tax_id: tax_id,
-        address_1: address_1,
-        address_2: address_2,
-        city: city,
-        postcode: postcode,
-        country: country,
-        state: state,
-        update_at: formattedDate,
-      });
-      // }
+      if (customer_id) {
+        await customer.update({
+          customer_id,
+          name: toLower(name),
+          email: toLower(email),
+          // password: await bcrypt.hash(password, 10),
+          telephone,
+          status,
+          update_at: formattedDate,
+        });
+        await customerAddress.update({
+          customer_address_id: customer_address_id,
+          first_name: first_name,
+          last_name: last_name,
+          company: company,
+          company_id: company_id,
+          tax_id: tax_id,
+          address_1: address_1,
+          address_2: address_2,
+          city: city,
+          postcode: postcode,
+          country: country,
+          state: state,
+          update_at: formattedDate,
+        });
 
-      res.json({
-        status: true,
-        message: "User Updated Successfully....",
-      });
+        res.json({
+          status: true,
+          message: "User Updated Successfully....",
+        });
+      }
     } catch (error) {
       res.json({
         status: false,
@@ -298,4 +298,53 @@ export default class CustomerController {
       });
     }
   }
+
+  static async deleteMultipleCustomers(req, res) {
+    try {
+      const { ids } = req.body;
+      const deletedCustomerIds = await customer.deleteMultiple(ids);
+      await customerAddress.deleteMultipleByCustomerIds(deletedCustomerIds);
+
+      res.json({
+        status: true,
+        message: "Users and their addresses deleted successfully.",
+      });
+    } catch (error) {
+      res.json({
+        status: false,
+        message: error.message || "An error occurred while deleting users.",
+      });
+    }
+  }
+
+  static async getCountry(req , res) {
+    try {
+      const countryData = await customer.country();
+
+      res.json({
+        status: true,
+        country: countryData,
+      });
+    } catch (error) {
+      res.json({
+        status: false,
+        message: error.message || "An error occurred while deleting users.",
+      });
+    }
+  }
+  // static async getStateByCountryId(req , res) {
+  //   try {
+  //     const countryData = await customer.country();
+
+  //     res.json({
+  //       status: true,
+  //       country: countryData,
+  //     });
+  //   } catch (error) {
+  //     res.json({
+  //       status: false,
+  //       message: error.message || "An error occurred while deleting users.",
+  //     });
+  //   }
+  // }
 }

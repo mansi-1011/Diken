@@ -29,7 +29,7 @@ route.use(
 );
 route.use(cookieParser());
 
-// route.post("/insert", auth, CourseController.insertCourse);
+route.post("/insert", auth, CourseController.insertCourse);
 
 // route.post("/auth", CustomerController.login);
 
