@@ -1,7 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
-import cookieParser from "cookie-parser"; 
+import cookieParser from "cookie-parser";
 
 import userRoutes from "./routes/user.routes.js";
 import customerRoutes from "./routes/customer.routes.js";
@@ -11,7 +11,7 @@ const HOST = process.env.HOST;
 const PORT = process.env.PORT || 8000;
 
 const app = express();
-app.use(cookieParser());
+
 app.use(
   cors({
     origin: `${process.env.FRONT_URL}`,
@@ -21,8 +21,6 @@ app.use(
   })
 );
 
-app.use(express.json());
-
 // Middleware to get the user's IP address
 app.use((req, res, next) => {
   const ipAddress = req.ip || req.connection.remoteAddress;
@@ -30,9 +28,11 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use(express.json());
+app.use(cookieParser());
+app.use("/api/user", userRoutes);
+app.use("/api/customer", customerRoutes);
+
 app.listen(PORT, HOST, () => {
   console.log(`Api Listenig at ${URL}:${PORT}`);
 });
-
-app.use("/api/user", userRoutes);
-app.use("/api/customer", customerRoutes);

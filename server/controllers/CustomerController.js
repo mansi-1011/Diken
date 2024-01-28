@@ -4,41 +4,101 @@ import customer from "../models/customer.model.js";
 import lodash from "lodash";
 import Jwt from "jsonwebtoken";
 import useragent from "express-useragent";
+import customerAddress from "../models/customerAddress.model.js";
 
 const { toLower } = lodash;
 export default class CustomerController {
-  static async register(req, res) {
+  static async insertCustomer(req, res) {
     try {
-      const { name, email, password, telephone, status } = req.body;
-      const existingCustomer = await customer.findByEmail(toLower(email));
-      if (existingCustomer) {
-        res.json({
-          status: false,
-          message: "Email Already in Use",
-        });
-      } else {
-        var newPassword = await bcrypt.hash(password, 10);
-        const formattedDate = new Date()
-          .toISOString()
-          .slice(0, 19)
-          .replace("T", " ");
+      const { general, address } = req.body;
+      const { customer_id, name, email, password, telephone, status } = general;
+      const formattedDate = new Date()
+        .toISOString()
+        .slice(0, 19)
+        .replace("T", " ");
 
-        await customer.create({
+      if (customer_id) {
+        await customer.update({
+          customer_id,
           name: toLower(name),
           email: toLower(email),
-          password: newPassword,
+          // password: await bcrypt.hash(password, 10),
           telephone,
-          ip: 0,
           status,
-          token: null,
-          create_at: formattedDate,
-          device_info: null,
+          update_at: formattedDate,
         });
+        if (address && address.length > 0) {
+          for (const addr of address) {
+            await customerAddress.update({
+              customer_address_id: addr.customer_address_id,
+              first_name: addr.first_name,
+              last_name: addr.last_name,
+              company: addr.company,
+              company_id: addr.company_id,
+              tax_id: addr.tax_id,
+              address_1: addr.address_1,
+              address_2: addr.address_2,
+              city: addr.city,
+              postcode: addr.postcode,
+              country: addr.country,
+              state: addr.state,
+              default_address: addr.default_address,
+              update_at: formattedDate,
+            });
+          }
+        }
 
         res.json({
           status: true,
-          message: "User Created Successfully....",
+          message: "User Updated Successfully....",
         });
+      } else {
+        const existingCustomer = await customer.findByEmail(toLower(email));
+        if (existingCustomer) {
+          res.json({
+            status: false,
+            message: "Email Already in Use",
+          });
+        } else {
+          var newPassword = await bcrypt.hash(password, 10);
+
+          const customerId = await customer.create({
+            name: toLower(name),
+            email: toLower(email),
+            password: newPassword,
+            telephone,
+            ip: 0,
+            status,
+            token: null,
+            create_at: formattedDate,
+            device_info: null,
+          });
+
+          if (address && address.length > 0) {
+            for (const addr of address) {
+              await customerAddress.create({
+                customer_id: customerId,
+                first_name: addr.first_name,
+                last_name: addr.last_name,
+                company: addr.company,
+                company_id: addr.company_id,
+                tax_id: addr.tax_id,
+                address_1: addr.address_1,
+                address_2: addr.address_2,
+                city: addr.city,
+                postcode: addr.postcode,
+                country: addr.country,
+                state: addr.state,
+                default_address: addr.default_address,
+                create_at: formattedDate,
+              });
+            }
+          }
+          res.json({
+            status: true,
+            message: "User Created Successfully....",
+          });
+        }
       }
     } catch (error) {
       console.log(error, "error");
@@ -74,30 +134,6 @@ export default class CustomerController {
               expiresIn: 60 * process.env.JWT_TIME,
             }
           );
-          console.log(req.body.device_info, "device_info");
-          //   if (!customerData.device_info || customerData.device_info === "UNSET") {
-          //     // Assuming model_account_customer is accessible here
-          //     const hello = model_account_customer.editDeviceInfo(
-          //       req.body.device_info
-          //     );
-          //     console.log(hello, "hello");
-          //   } else {
-          //     // Checking if device_info is not empty and not 'UNSET'
-          //     const unserializedData = JSON.parse(customerData.device_info);
-          //     customerData.device_info = unserializedData;
-
-          //     if (unserializedData !== req.body.device_info) {
-          //       // Log out the user and set error message
-          //       // Implement your customer logout logic here
-          //       const json = {
-          //         error: "Invalid device, please login from registered device",
-          //         success: false,
-          //       };
-          //       // Handle the JSON object as needed
-          //       res.json(json);
-          //       return;
-          //     }
-          //   }
 
           res.json({
             status: true,
@@ -178,6 +214,23 @@ export default class CustomerController {
       res.json({
         status: false,
         message: error.message,
+      });
+    }
+  }
+
+  static async editCustomer(req, res) {
+    try {
+      var customer_id = req.params.id;
+      const customerData = await customer.findById(customer_id);
+      res.json({
+        status: true,
+        customer: customerData,
+      });
+    } catch (error) {
+      console.log(error, "error");
+      res.json({
+        status: false,
+        message: "Somthing Wrong !!",
       });
     }
   }

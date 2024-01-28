@@ -1,12 +1,14 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import bodyParser from "body-parser";
+
 import CustomerController from "../controllers/CustomerController.js";
-import cookieParser from "cookie-parser"; 
+import auth from "../middleware/auth.js";
 
 const route = express.Router();
-route.use(cookieParser());
+// route.use(cookieParser());
 
 route.use(
   cors({
@@ -29,6 +31,10 @@ route.use(
 
 route.post("/auth", CustomerController.login);
 
-route.get("/",CustomerController.getCustomer)
+route.get("/", auth, CustomerController.getCustomer);
+
+route.get("/edit/:id", auth, CustomerController.editCustomer);
+
+route.post("/insert", auth, CustomerController.insertCustomer);
 
 export default route;
