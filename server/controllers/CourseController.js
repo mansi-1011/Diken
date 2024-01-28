@@ -2,74 +2,103 @@ import "dotenv/config";
 import bcrypt from "bcrypt";
 import lodash from "lodash";
 import Jwt from "jsonwebtoken";
-import UAParser from "ua-parser-js";
 
 import customer from "../models/customer.model.js";
 import customerAddress from "../models/customerAddress.model.js";
 
 const { toLower } = lodash;
-export default class CustomerController {
+export default class CourseController {
   static async insertCustomer(req, res) {
     try {
       const { general, address } = req.body;
-      const { name, email, password, telephone, status } = general;
-      const {
-        first_name,
-        last_name,
-        company,
-        company_id,
-        tax_id,
-        address_1,
-        address_2,
-        city,
-        postcode,
-        country,
-        state,
-      } = address;
+      const { customer_id, name, email, password, telephone, status } = general;
       const formattedDate = new Date()
         .toISOString()
         .slice(0, 19)
         .replace("T", " ");
-      const existingCustomer = await customer.findByEmail(toLower(email));
-      if (existingCustomer) {
-        res.json({
-          status: false,
-          message: "Email Already in Use",
-        });
-      } else {
-        var newPassword = await bcrypt.hash(password, 10);
 
-        const customerId = await customer.create({
+      if (customer_id) {
+        await customer.update({
+          customer_id,
           name: toLower(name),
           email: toLower(email),
-          password: newPassword,
+          // password: await bcrypt.hash(password, 10),
           telephone,
-          ip: 0,
           status,
-          token: null,
-          create_at: formattedDate,
-          device_info: null,
+          update_at: formattedDate,
         });
+        if (address && address.length > 0) {
+          for (const addr of address) {
+            await customerAddress.update({
+              customer_address_id: addr.customer_address_id,
+              first_name: addr.first_name,
+              last_name: addr.last_name,
+              company: addr.company,
+              company_id: addr.company_id,
+              tax_id: addr.tax_id,
+              address_1: addr.address_1,
+              address_2: addr.address_2,
+              city: addr.city,
+              postcode: addr.postcode,
+              country: addr.country,
+              state: addr.state,
+              default_address: addr.default_address,
+              update_at: formattedDate,
+            });
+          }
+        }
 
-        await customerAddress.create({
-          customer_id: customerId,
-          first_name: first_name,
-          last_name: last_name,
-          company: company,
-          company_id: company_id,
-          tax_id: tax_id,
-          address_1: address_1,
-          address_2: address_2,
-          city: city,
-          postcode: postcode,
-          country: country,
-          state: state,
-          create_at: formattedDate,
-        });
         res.json({
           status: true,
-          message: "User Created Successfully....",
+          message: "User Updated Successfully....",
         });
+      } else {
+        const existingCustomer = await customer.findByEmail(toLower(email));
+        if (existingCustomer) {
+          res.json({
+            status: false,
+            message: "Email Already in Use",
+          });
+        } else {
+          var newPassword = await bcrypt.hash(password, 10);
+
+          const customerId = await customer.create({
+            name: toLower(name),
+            email: toLower(email),
+            password: newPassword,
+            telephone,
+            ip: 0,
+            status,
+            token: null,
+            create_at: formattedDate,
+            device_info: null,
+          });
+
+          if (address && address.length > 0) {
+            for (const addr of address) {
+              await customerAddress.create({
+                customer_id: customerId,
+                first_name: addr.first_name,
+                last_name: addr.last_name,
+                company: addr.company,
+                company_id: addr.company_id,
+                tax_id: addr.tax_id,
+                address_1: addr.address_1,
+                address_2: addr.address_2,
+                city: addr.city,
+                postcode: addr.postcode,
+                country: addr.country,
+                state: addr.state,
+                default_address: addr.default_address,
+                create_at: formattedDate,
+              });
+            }
+          }
+          res.json({
+            status: true,
+            message: "User Created Successfully....",
+          });
+        }
       }
     } catch (error) {
       console.log(error, "error");
@@ -100,10 +129,7 @@ export default class CustomerController {
           const deviceInfo = parser.setUA(userAgent).getResult();
           const ip = req.userIpAddress;
 
-          if (
-            (!customerData.ip || customerData.ip === "0") &&
-            (!customerData.device_info || customerData.device_info === "null")
-          ) {
+          if ((!customerData.ip || customerData.ip === '0') && (!customerData.device_info || customerData.device_info === 'null')) {
             customerData.ip = ip;
             await customer.updateUserInfo(customerData.customer_id, {
               ip: ip,
@@ -149,7 +175,7 @@ export default class CustomerController {
         }
       }
     } catch (error) {
-      console.log(error, "error");
+      console.log(error ,"error");
       res.json({
         status: false,
         message:
@@ -233,68 +259,6 @@ export default class CustomerController {
       res.json({
         status: false,
         message: "Somthing Wrong !!",
-      });
-    }
-  }
-
-  static async updateCustomer(req, res) {
-    try {
-      const { general, address } = req.body;
-      const { customer_id, name, email, password, telephone, status } = general;
-      const {
-        customer_address_id,
-        first_name,
-        last_name,
-        company,
-        company_id,
-        tax_id,
-        address_1,
-        address_2,
-        city,
-        postcode,
-        country,
-        state,
-      } = address;
-      const formattedDate = new Date()
-        .toISOString()
-        .slice(0, 19)
-        .replace("T", " ");
-
-      // if (customer_id) {
-      await customer.update({
-        customer_id,
-        name: toLower(name),
-        email: toLower(email),
-        // password: await bcrypt.hash(password, 10),
-        telephone,
-        status,
-        update_at: formattedDate,
-      });
-      await customerAddress.update({
-        customer_address_id: customer_address_id,
-        first_name: first_name,
-        last_name: last_name,
-        company: company,
-        company_id: company_id,
-        tax_id: tax_id,
-        address_1: address_1,
-        address_2: address_2,
-        city: city,
-        postcode: postcode,
-        country: country,
-        state: state,
-        update_at: formattedDate,
-      });
-      // }
-
-      res.json({
-        status: true,
-        message: "User Updated Successfully....",
-      });
-    } catch (error) {
-      res.json({
-        status: false,
-        message: error.message,
       });
     }
   }

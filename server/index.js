@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 
 import userRoutes from "./routes/user.routes.js";
 import customerRoutes from "./routes/customer.routes.js";
+import courseRoutes from "./routes/course.routes.js";
 
 const URL = process.env.HOST_URL;
 const HOST = process.env.HOST;
@@ -30,8 +31,10 @@ app.use((req, res, next) => {
 
 app.use(express.json());
 app.use(cookieParser());
+
 app.use("/api/user", userRoutes);
 app.use("/api/customer", customerRoutes);
+app.use("/api/course", courseRoutes);
 
 app.listen(PORT, HOST, () => {
   console.log(`Api Listenig at ${URL}:${PORT}`);

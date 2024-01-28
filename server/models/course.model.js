@@ -4,7 +4,7 @@ const customer = {
   create: async (customerData) => {
     try {
       const result = await queryAsync(
-        "INSERT INTO `customer`(`name`, `email`, `telephone`, `password`, `ip`, `status`, `token`, `create_at`, `device_info`) VALUES (?, ?, ?, ?, ?, ?, ?,?,?)",
+        "INSERT INTO `courses`(`course_name`, `course_description`, `course_expired_days`, `course_expired_date`, `course_image`, `course_length`, `course_number_of_videos`, `course_price`, `course_status`, `create_at`) VALUES (?,?,?,?,?,?,?,?,?,?)",
         [
           customerData.name,
           customerData.email,
@@ -93,7 +93,7 @@ const customer = {
     `;
 
     await queryAsync(query, [ip, device_info, customerId]);
-  },  
+  },
 };
 
 export default customer;

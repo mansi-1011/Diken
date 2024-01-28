@@ -4,7 +4,7 @@ const customerAddress = {
   create: async (addressData) => {
     try {
       const result = await queryAsync(
-        "INSERT INTO `customer_address`(`customer_id`, `first_name`, `last_name`, `company`, `company_id`, `tax_id`, `address_1`, `address_2`, `city`, `postcode`, `country`, `state`, `default_address`,`create_at`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)",
+        "INSERT INTO `customer_address`(`customer_id`, `first_name`, `last_name`, `company`, `company_id`, `tax_id`, `address_1`, `address_2`, `city`, `postcode`, `country`, `state`, `create_at`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         [
           addressData.customer_id,
           addressData.first_name,
@@ -18,7 +18,6 @@ const customerAddress = {
           addressData.postcode,
           addressData.country,
           addressData.state,
-          addressData.default_address,
           addressData.create_at,
         ]
       );
@@ -31,7 +30,7 @@ const customerAddress = {
   update: async (addressData) => {
     try {
       const result = await queryAsync(
-        "UPDATE `customer_address` SET `first_name`=?, `last_name`=?, `company`=?, `company_id`=?, `tax_id`=?, `address_1`=?, `address_2`=?, `city`=?, `postcode`=?, `country`=?, `state`=?, `default_address`=?, `update_at`=?  WHERE `customer_address_id`=?",
+        "UPDATE `customer_address` SET `first_name`=?, `last_name`=?, `company`=?, `company_id`=?, `tax_id`=?, `address_1`=?, `address_2`=?, `city`=?, `postcode`=?, `country`=?, `state`=?,  `update_at`=?  WHERE `customer_address_id`=?",
         [
           addressData.first_name,
           addressData.last_name,
@@ -44,7 +43,6 @@ const customerAddress = {
           addressData.postcode,
           addressData.country,
           addressData.state,
-          addressData.default_address,
           addressData.update_at,
           addressData.customer_address_id,
         ]

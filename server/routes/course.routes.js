@@ -4,7 +4,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import bodyParser from "body-parser";
 
-import CustomerController from "../controllers/CustomerController.js";
+import CourseController from "../controllers/CourseController.js";
 import auth from "../middleware/auth.js";
 
 const route = express.Router();
@@ -28,16 +28,15 @@ route.use(
   })
 );
 route.use(cookieParser());
-//
 
-route.post("/auth", CustomerController.login);
+// route.post("/insert", auth, CourseController.insertCourse);
 
-route.get("/", auth, CustomerController.getCustomer);
+// route.post("/auth", CustomerController.login);
 
-route.get("/edit/:id", auth, CustomerController.editCustomer);
+// route.get("/", auth, CustomerController.getCustomer);
 
-route.post("/insert", auth, CustomerController.insertCustomer);
+// route.get("/edit/:id", auth, CustomerController.editCustomer);
 
-route.put("/upd", auth, CustomerController.updateCustomer);
+// route.post("/insert", auth, CustomerController.insertCustomer);
 
 export default route;
