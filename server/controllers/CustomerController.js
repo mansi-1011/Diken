@@ -6,6 +6,7 @@ import UAParser from "ua-parser-js";
 
 import customer from "../models/customer.model.js";
 import customerAddress from "../models/customerAddress.model.js";
+import courseModel from "../models/course.model.js";
 
 const { toLower } = lodash;
 export default class CustomerController {
@@ -68,7 +69,7 @@ export default class CustomerController {
         });
         res.json({
           status: true,
-          message: "User Created Successfully....",
+          message: "Customer Created Successfully....",
         });
       }
     } catch (error) {
@@ -76,84 +77,6 @@ export default class CustomerController {
       res.json({
         status: false,
         message: error.message || "Email Already in Use",
-      });
-    }
-  }
-
-  static async login(req, res) {
-    try {
-      const { email, password } = req.body;
-      const customerData = await customer.findByEmail(toLower(email));
-      if (!customerData) {
-        res.json({
-          status: false,
-          message: "Invalid User Email..",
-        });
-      } else {
-        const PassConfirm = await bcrypt.compare(
-          password,
-          customerData.password
-        );
-        if (PassConfirm) {
-          const userAgent = req.headers["user-agent"];
-          const parser = new UAParser();
-          const deviceInfo = parser.setUA(userAgent).getResult();
-          const ip = req.userIpAddress;
-
-          if (
-            (!customerData.ip || customerData.ip === "0") &&
-            (!customerData.device_info || customerData.device_info === "null")
-          ) {
-            customerData.ip = ip;
-            await customer.updateUserInfo(customerData.customer_id, {
-              ip: ip,
-              device_info: JSON.stringify(deviceInfo),
-            });
-          }
-
-          if (
-            customerData.device_info &&
-            customerData.device_info !== "UNSET"
-          ) {
-            const storedDeviceInfo = JSON.parse(customerData.device_info);
-            if (
-              JSON.stringify(deviceInfo) !== JSON.stringify(storedDeviceInfo)
-            ) {
-              return res.json({
-                status: false,
-                message: "Invalid device, please login from registered device.",
-              });
-            }
-          }
-          const token = Jwt.sign(
-            {
-              name: customerData.name,
-              email: customerData.email,
-            },
-            process.env.JWT_KEY,
-            {
-              expiresIn: 60 * process.env.JWT_TIME,
-            }
-          );
-
-          res.json({
-            status: true,
-            message: "User Logged In...",
-            token: token,
-          });
-        } else {
-          res.json({
-            status: false,
-            message: "Incorrect Password. Please try again.",
-          });
-        }
-      }
-    } catch (error) {
-      console.log(error, "error");
-      res.json({
-        status: false,
-        message:
-          error.message || "An error occurred while processing the login.",
       });
     }
   }
@@ -239,7 +162,7 @@ export default class CustomerController {
 
   static async updateCustomer(req, res) {
     try {
-      const { general, address } = req.data;
+      const { general, address } = req.body;
       const { customer_id, name, email, password, telephone, status } = general;
       const {
         customer_address_id,
@@ -288,10 +211,12 @@ export default class CustomerController {
 
         res.json({
           status: true,
-          message: "User Updated Successfully....",
+          message: "Customer Updated Successfully....",
         });
       }
     } catch (error) {
+      console.log(error, "error");
+
       res.json({
         status: false,
         message: error.message,
@@ -332,6 +257,7 @@ export default class CustomerController {
       });
     }
   }
+
   static async getStateByCountryId(req, res) {
     try {
       const countryId = req.params.id;
@@ -346,6 +272,102 @@ export default class CustomerController {
       res.json({
         status: false,
         message: error.message || "An error occurred while fetching states.",
+      });
+    }
+  }
+
+  static async searchByCourseName(req, res) {
+    try {
+      const searchString = req.query.filter;
+
+      const courses = await courseModel.findByCourseName(searchString);
+
+      res.json({
+        status: true,
+        courses: courses,
+      });
+    } catch (error) {
+      res.json({
+        status: false,
+        message: error.message || "An error occurred while fetching states.",
+      });
+    }
+  }
+
+  static async login(req, res) {
+    try {
+      const { email, password } = req.body;
+      const customerData = await customer.findByEmail(toLower(email));
+      if (!customerData) {
+        res.json({
+          status: false,
+          message: "Invalid Customer Email..",
+        });
+      } else {
+        const PassConfirm = await bcrypt.compare(
+          password,
+          customerData.password
+        );
+        if (PassConfirm) {
+          const userAgent = req.headers["user-agent"];
+          const parser = new UAParser();
+          const deviceInfo = parser.setUA(userAgent).getResult();
+          const ip = req.userIpAddress;
+
+          if (
+            (!customerData.ip || customerData.ip === "0") &&
+            (!customerData.device_info || customerData.device_info === "null")
+          ) {
+            customerData.ip = ip;
+            await customer.updateUserInfo(customerData.customer_id, {
+              ip: ip,
+              device_info: JSON.stringify(deviceInfo),
+            });
+          }
+
+          if (
+            customerData.device_info &&
+            customerData.device_info !== "UNSET"
+          ) {
+            const storedDeviceInfo = JSON.parse(customerData.device_info);
+            if (
+              JSON.stringify(deviceInfo) !== JSON.stringify(storedDeviceInfo)
+            ) {
+              return res.json({
+                status: false,
+                message: "Invalid device, please login from registered device.",
+              });
+            }
+          }
+          const token = Jwt.sign(
+            {
+              name: customerData.name,
+              email: customerData.email,
+            },
+            process.env.JWT_KEY,
+            {
+              expiresIn: 60 * process.env.JWT_TIME,
+            }
+          );
+
+          res.json({
+            status: true,
+            message: "Customer Logged In...",
+            token: token,
+          });
+        } else {
+          res.json({
+            status: false,
+            message: "Incorrect Password. Please try again.",
+          });
+        }
+      }
+    } catch (error) {
+      console.log(error, "error");
+      res.json({
+        status: false,
+        message:
+          error.message || "An error occurred while processing the login.",
       });
     }
   }

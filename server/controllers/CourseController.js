@@ -1,54 +1,21 @@
 import "dotenv/config";
-import bcrypt from "bcrypt";
 import lodash from "lodash";
-import Jwt from "jsonwebtoken";
 
-import courses from "../models/course.model.js";
-import coursesData from "../models/courseData.model.js";
+import courseModel from "../models/course.model.js";
+import courseDataModel from "../models/courseData.model.js";
+import fs from "fs";
 
-const { toLower } = lodash;
+const { _ } = lodash;
 export default class CourseController {
   static async insertCourse(req, res) {
     try {
-      const data = {
-        course: {
-          course_name: "Early Pregnancy(Ectopic, level-1 Included)",
-          course_description: "hello",
-          course_expired_days: 20,
-          course_image: "storage/public/course_images/test.jpg",
-          course_length: 1.5,
-          course_number_of_videos: 4,
-          course_price: 15000,
-          course_status: 1,
-        },
-        course_data: [
-          {
-            course_data_type: "1",
-            course_data_title: "01 GB  practical",
-            course_data_url:
-              "https://d2cg0216mv93jg.cloudfront.net/1+Gall+Bladder/01+GB++practical.mp4",
-            course_data_length: "55:34",
-            course_count_of_view: 1,
-            course_sort_order: 0,
-          },
-          {
-            course_data_type: "2",
-            course_data_title: "01 GB Ultrasound Class - I",
-            course_data_url:
-              "https://d2cg0216mv93jg.cloudfront.net/1+Gall+Bladder/01+GB+Ultrasound+Class+-+I.mp4",
-            course_data_length: "55:34",
-            course_count_of_view: 1,
-            course_sort_order: 1,
-          },
-        ],
-      };
-      const { course, course_data } = data;
-      //   const { general, address } = req.body;
+      const { course, course_data } = JSON.parse(req.body.course_data);
+      const image = _.first(req.files.course_image);
+      const image_path = `${image.destination}/${image.filename}`;
       const {
         course_name,
         course_description,
         course_expired_days,
-        course_image,
         course_length,
         course_number_of_videos,
         course_price,
@@ -66,12 +33,12 @@ export default class CourseController {
 
       const course_expired_date = futureDate.toISOString().split("T")[0];
 
-      const courseId = await courses.create({
+      const courseId = await courseModel.create({
         course_name,
         course_description,
         course_expired_days,
         course_expired_date: course_expired_date,
-        course_image,
+        course_image: image_path,
         course_length,
         course_number_of_videos,
         course_price,
@@ -81,7 +48,7 @@ export default class CourseController {
 
       if (course_data && course_data.length > 0) {
         for (const data of course_data) {
-          await coursesData.create({
+          await courseDataModel.create({
             course_id: courseId,
             course_data_type: data.course_data_type,
             course_data_title: data.course_data_title,
@@ -137,13 +104,13 @@ export default class CourseController {
 
       const conditions = `1 ${search_query}`;
 
-      const coursesWithCourseData = await courses.findAllWithCourseData(
+      const coursesWithCourseData = await courseModel.findAllWithCourseData(
         conditions,
         `${column} ${column_sort_order}`,
         pageSize,
         offset
       );
-      const total_courses = await courses.count(conditions);
+      const total_courses = await courseModel.count(conditions);
 
       const total_filter_request = total_courses;
 
@@ -168,19 +135,141 @@ export default class CourseController {
     }
   }
 
-  static async editCustomer(req, res) {
+  static async editCourse(req, res) {
     try {
-      var customer_id = req.params.id;
-      const customerData = await customer.findById(customer_id);
+      var course_id = req.params.id;
+      const course = await courseModel.findById(course_id);
+      const courseData = await courseDataModel.findById(course_id);
+      console.log(courseData, "courseData");
       res.json({
         status: true,
-        customer: customerData,
+        course: {
+          course,
+          courseData,
+        },
       });
     } catch (error) {
       console.log(error, "error");
       res.json({
         status: false,
         message: "Somthing Wrong !!",
+      });
+    }
+  }
+
+  static async updateCourse(req, res) {
+    try {
+      const { course, course_data } = JSON.parse(req.body.course_data);
+
+      const {
+        course_id,
+        course_name,
+        course_description,
+        course_expired_days,
+        course_length,
+        course_number_of_videos,
+        course_price,
+        course_status,
+      } = course;
+      const courses = await courseModel.findById(course_id);
+      console.log(courses, "sgdfdgh");
+      const image = _.first(req.files.course_image);
+      var new_image = "";
+
+      if (image !== undefined) {
+        new_image = `${image.destination}/${image.filename}`;
+        try {
+          fs.unlinkSync(
+            `../server/${courses.RowDataPacket.course_image}`,
+            (err) => {
+              if (err) throw err;
+            }
+          );
+        } catch (err) {
+          console.log(err);
+        }
+      } else {
+        new_image = courses.RowDataPacket.course_image;
+      }
+
+      const formattedDate = new Date()
+        .toISOString()
+        .slice(0, 19)
+        .replace("T", " ");
+
+      let currentDate = new Date();
+      let futureDate = new Date();
+      futureDate.setDate(currentDate.getDate() + course_expired_days);
+
+      const course_expired_date = futureDate.toISOString().split("T")[0];
+
+      await courseModel.update({
+        course_id,
+        course_name,
+        course_description,
+        course_expired_days,
+        course_expired_date,
+        course_image: new_image,
+        course_length,
+        course_number_of_videos,
+        course_price,
+        course_status,
+        update_at: formattedDate,
+      });
+
+      if (course_data && course_data.length > 0) {
+        for (const data of course_data) {
+          await courseDataModel.update({
+            course_data_type: data.course_data_type,
+            course_data_title: data.course_data_title,
+            course_data_url: data.course_data_url,
+            course_data_length: data.course_data_length,
+            course_data_count_of_view: data.course_count_of_view,
+            course_data_sort_order: data.course_sort_order,
+            update_at: formattedDate,
+            course_data_id: data.course_data_id,
+          });
+        }
+      }
+
+      res.json({
+        status: true,
+        message: "User Updated Successfully....",
+      });
+    } catch (error) {
+      res.json({
+        status: false,
+        message: error.message,
+      });
+    }
+  }
+
+  static async deleteMultipleCourse(req, res) {
+    try {
+      const { ids } = req.body;
+      // const ids = [2, 1];
+
+      const courses = await courseModel.findByMultipleIds(ids);
+      if (courses) {
+        courses.forEach((course) => {
+          var Images = course.course_image;
+          fs.unlinkSync(`../server/${Images}`, (err) => {
+            if (err) throw err;
+          });
+        });
+      }
+      const deletedCourseIds = await courseModel.deleteMultiple(ids);
+      await courseDataModel.deleteMultipleByCourseIds(deletedCourseIds);
+
+      res.json({
+        status: true,
+        message: "course and their course data deleted successfully.",
+      });
+    } catch (error) {
+      console.log(error, "error");
+      res.json({
+        status: false,
+        message: error.message || "An error occurred while deleting users.",
       });
     }
   }
