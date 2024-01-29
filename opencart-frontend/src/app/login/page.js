@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useFormik } from "formik";
 import { useState } from "react";
 import { initialLogin, loginScheme } from "@/src/utils/validation";
-import { postAPI, print } from "@/src/utils/api";
+import {  postLoginAPI, print } from "@/src/utils/api";
 import { toast } from "react-toastify";
 // import { useState } from "react";
 // import { useDispatch } from "react-redux";
@@ -31,13 +31,12 @@ export default function Login() {
     initialValues: initialLogin,
     validationSchema: loginScheme,
     onSubmit: async (e, action) => {
-      console.log(e);
 
       setLoading(true);
-          const data = await postAPI("/api/user/auth", e);
-          // print(data);
+          const data = await postLoginAPI("/api/user/auth", e);
           console.log(data)
           if (data.status === true) {
+            localStorage.setItem("authToken", data.token);
             // dispatch(userData(data.business_info));
             route.replace("/home");
             action.resetForm();
