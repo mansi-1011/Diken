@@ -1,20 +1,40 @@
 import axios from "axios";
-
+import { useRouter } from 'next/router';
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 
+
+
 export const getAPI = async (url) => {
+  const router = useRouter();  // Move this line inside the function
+
   try {
-    const { data } = await axios.get(BASE_URL + url, { withCredentials: true });
+    const token = localStorage.getItem("authToken");
+    const { data } = await axios.get(BASE_URL + url, {
+      headers: {
+        'x-access-token': token,
+      },
+      withCredentials: true,
+    });
+
+    if (data.message === false) {
+      router.push('/login');
+    } else if (data.message === true) {
+      return data;
+    }
     // console.log(data)
-    return data;
   } catch (err) {
-    print(err);
+    console.error(err);
   }
 };
+
+
 export const deleteAPI = async (url) => {
   try {
-    const { data } = await axios.delete(BASE_URL + url, {
+    const token = localStorage.getItem("authToken");
+    const { data } = await axios.delete(BASE_URL + url,  {  headers: {
+      'x-access-token': token,
+  } }, {
       withCredentials: true,
     });
     return data;
@@ -23,12 +43,10 @@ export const deleteAPI = async (url) => {
   }
 };
 
-export const postAPI = async (url, json) => {
+export const postLoginAPI = async (url, json) => {
   try {
     const { data } = await axios.post(BASE_URL + url, json, {
       withCredentials: true,
-      
-
     });
     return data;
   } catch (err) {
@@ -36,14 +54,15 @@ export const postAPI = async (url, json) => {
     return err;
   }
 };
-export const postMultipartAPI = async (url, json) => {
-  try {
-    const { data } = await axios.post(BASE_URL + url, json, {
-      withCredentials: true,
-      headers: {
-        "Content-Type": "multipart/form-data"
-    },
 
+export const postAPI = async (url, json) => {
+
+  try {
+    const token = localStorage.getItem("authToken");
+    const { data } = await axios.post(BASE_URL + url,  {  headers: {
+      'x-access-token': token,
+  } }, json, {
+      withCredentials: true,
     });
     return data;
   } catch (err) {
@@ -54,7 +73,10 @@ export const postMultipartAPI = async (url, json) => {
 
 export const putAPI = async (url, json) => {
   try {
-    const { data } = await axios.put(BASE_URL + url, json, {
+    const token = localStorage.getItem("authToken");
+    const { data } = await axios.put(BASE_URL + url, {  headers: {
+      'x-access-token': token,
+  } }, json, {
       withCredentials: true,
     });
     return data;
@@ -64,45 +86,6 @@ export const putAPI = async (url, json) => {
   }
 };
 
-export const createOrder = async (values) => {
-  try {
-    const data = values.details.filter((i) => {
-      i.filter((i) => i.Qty !== 0);
-    });
-    values.form = data;
-    console.log("create order values", values);
-
-    const res = await postMultipartAPI("/users/create-order", values);
-    console.log("create order response", res);
-    return res;
-  } catch (error) {
-    return error;
-  }
-};
-
-export const getBlobAPI = async (url) => {
-  try {
-    const res = await axios.get(BASE_URL + url, {
-      responseType: "blob",
-      withCredentials: true,
-    });
 
 
-    return res.data;
-  } catch (err) {
-    print(err);
-  }
-};
-export const getBlobAPIForExcel = async (url) => {
-  try {
-    const res = await axios.get(BASE_URL + url, {
-      responseType: "blob",
-      withCredentials: true,
-    });
 
-
-    return res.data;
-  } catch (err) {
-    print(err);
-  }
-};

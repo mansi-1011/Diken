@@ -1,6 +1,7 @@
 import "./globle.css";
 // import Provider from "@/slice/provider";
 import { ToastContainer } from "react-toastify";
+import './table.css';
 
 import "react-toastify/dist/ReactToastify.css";
 
