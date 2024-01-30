@@ -172,24 +172,22 @@ export default class CourseController {
         course_status,
       } = course;
       const courses = await courseModel.findById(course_id);
-      console.log(courses, "sgdfdgh");
+
       const image = _.first(req.files.course_image);
       var new_image = "";
 
       if (image !== undefined) {
         new_image = `${image.destination}/${image.filename}`;
         try {
-          fs.unlinkSync(
-            `../server/${courses.RowDataPacket.course_image}`,
-            (err) => {
-              if (err) throw err;
-            }
-          );
+          console.log(courses.course_image, "courses.course_image");
+          fs.unlinkSync(`../server/${courses.course_image}`, (err) => {
+            if (err) throw err;
+          });
         } catch (err) {
           console.log(err);
         }
       } else {
-        new_image = courses.RowDataPacket.course_image;
+        new_image = courses.course_image;
       }
 
       const formattedDate = new Date()
@@ -237,6 +235,7 @@ export default class CourseController {
         message: "User Updated Successfully....",
       });
     } catch (error) {
+      console.log(error);
       res.json({
         status: false,
         message: error.message,
