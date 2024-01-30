@@ -23,15 +23,16 @@ const page = () => {
           },
         });
         if (response.data.status == false) {
+          localStorage.clear()
           router.replace("/login")
         } else if (response.data.status == true) {
           toast.success("Customer add successfully.")
         }
-        console.log(response)
-        console.log('Response:', response.data);
       } catch (error) {
+
+        localStorage.clear()
+          router.replace("/login")
         // Handle errors
-        console.error('Error:', error.message);
       } finally {
         // Regardless of success or failure, setSubmitting to false
 

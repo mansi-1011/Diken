@@ -5,8 +5,8 @@ import { convertDateFormat } from "@/src/utils/function";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 
-const CostomersData = ({ data }) => {
-  
+const CostomersData = ({ data, getAllReworkData }) => {
+  console.log(data)
   const router = useRouter()
   const dataTableRef = useRef(null);
   const [loading, setLoading] = useState(false);
@@ -98,40 +98,39 @@ const CostomersData = ({ data }) => {
 
   const handleGetSelectedIds = async () => {
     const selectedIds = $("#example tbody input[type='checkbox']:checked").map(function () {
-      return this.value;
+        return this.value;
     }).get();
 
-    console.log("Selected IDs:", selectedIds);
-
     try {
-      const token = localStorage.getItem('authToken');
-      console.log(token)
-        const response = await axios.delete(BASE_URL + '/api/customer/mlpdelete', {"ids": ['12']}, {
-          headers: {
-            'Content-Type': 'application/json',
-              'x-access-token': token
-          },
+        const token = localStorage.getItem('authToken');
+        const response = await axios.delete(BASE_URL + '/api/customer/mlpdelete', {
+            headers: {
+                'Content-Type': 'application/json',
+                'x-access-token': token
+            },
+            data: JSON.stringify({ ids: selectedIds }) 
         });
-        if (response.data.user == false) {
-          router.replace("/login")
-        } else if (response.data.user == true) {
-          toast.success("Customer Delete successfully.")
-        }
-        console.log(response)
-        console.log('Response:', response.data);
-      } catch (error) {
-        // Handle errors
+       
+          await getAllReworkData()
+            toast.success("Customer Delete successfully.");
+        
+    } catch (error) {
+        localStorage.clear()
+        router.replace("/login");
         console.error('Error:', error.message);
-      } finally {
-      }
-  };
+    } 
+};
 
-  
+const handleRefreshClick = async function() {
+  await getAllReworkData();
+};
   return (
     <>
       {/* <div className="select_box"></div> */}
+      <div onClick={() => getAllReworkData()}>refresh1</div>
+      <div onClick={ handleRefreshClick}>refresh2</div>
       {/* <div className="select_box"> */}
-        <button className="btn" type="button" onClick={() => handleGetSelectedIds()}>delete</button>
+        <button className="btn m-0" type="button" onClick={(handleRefreshClick) => handleGetSelectedIds(handleRefreshClick)}>delete</button>
       {/* </div> */}
       <table ref={dataTableRef} className="display_table" id="example" width="100%"></table>
     </>

@@ -18,13 +18,15 @@ export const getAPI = async (url) => {
     });
 
     if (data.message === false) {
+      localStorage.clear()
       router.push('/login');
     } else if (data.message === true) {
       return data;
     }
     // console.log(data)
   } catch (err) {
-    console.error(err);
+    localStorage.clear()
+    router.push('/login');
   }
 };
 
