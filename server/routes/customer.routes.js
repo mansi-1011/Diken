@@ -29,7 +29,13 @@ route.use(
 );
 route.use(cookieParser());
 
+// mobile api routes Start
+
 route.post("/auth", CustomerController.login);
+
+// mobile api routes End
+
+// Web api routes Start
 
 route.get("/", auth, CustomerController.getCustomer);
 
@@ -39,10 +45,14 @@ route.post("/insert", auth, CustomerController.insertCustomer);
 
 route.put("/upd", auth, CustomerController.updateCustomer);
 
-route.delete("/mlpdelete", auth,CustomerController.deleteMultipleCustomers);
+route.delete("/mlpdelete", auth, CustomerController.deleteMultipleCustomers);
 
-route.get('/country' , auth , CustomerController.getCountry);
+route.get("/country", auth, CustomerController.getCountry);
 
-route.get('/country/:id' , auth , CustomerController.getStateByCountryId);
+route.get("/country/:id", auth, CustomerController.getStateByCountryId);
+
+route.get("/autocomplete", auth, CustomerController.searchByCourseName);
+
+// Web api routes Start
 
 export default route;

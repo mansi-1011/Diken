@@ -6,7 +6,7 @@ import UserController from "../controllers/UserController.js";
 import cookieParser from "cookie-parser"; 
 
 const route = express.Router();
-// route.use(cookieParser());
+route.use(cookieParser());
 
 route.use(
   cors({
