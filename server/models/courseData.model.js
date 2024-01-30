@@ -25,7 +25,7 @@ const courseDataModel = {
   update: async (courseData) => {
     try {
       const result = await queryAsync(
-        "UPDATE `course_data` SET `course_data_type`=?, `course_data_title`=?, `course_data_url`=?,`course_data_length`=?, `course_data_count_of_view`=?, `course_data_sort_order`=?, `update_at`=?, `update_at`=? WHERE `course_data_id`=?",
+        "UPDATE `course_data` SET `course_data_type`=?, `course_data_title`=?, `course_data_url`=?,`course_data_length`=?, `course_data_count_of_view`=?, `course_data_sort_order`=?, `update_at`=? WHERE `course_data_id`=?",
         [
           courseData.course_data_type,
           courseData.course_data_title,
