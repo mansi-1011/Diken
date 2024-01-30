@@ -1,22 +1,21 @@
 import queryAsync from "../lib/db.js";
 
-const courses = {
-  create: async (courseData) => {
-    console.log(courseData, "djfgdhf");
+const courseModel = {
+  create: async (course) => {
     try {
       const result = await queryAsync(
         "INSERT INTO `courses`(`course_name`, `course_description`, `course_expired_days`, `course_expired_date`, `course_image`, `course_length`, `course_number_of_videos`, `course_price`, `course_status`, `create_at`) VALUES (?,?,?,?,?,?,?,?,?,?)",
         [
-          courseData.course_name,
-          courseData.course_description,
-          courseData.course_expired_days,
-          courseData.course_expired_date,
-          courseData.course_image,
-          courseData.course_length,
-          courseData.course_number_of_videos,
-          courseData.course_price,
-          courseData.course_status,
-          courseData.create_at,
+          course.course_name,
+          course.course_description,
+          course.course_expired_days,
+          course.course_expired_date,
+          course.course_image,
+          course.course_length,
+          course.course_number_of_videos,
+          course.course_price,
+          course.course_status,
+          course.create_at,
         ]
       );
       return result.insertId;
@@ -28,17 +27,19 @@ const courses = {
   update: async (course) => {
     try {
       const result = await queryAsync(
-        "UPDATE `courses` SET `name`=?, `email`=?, `telephone`=?,`ip`=?, `status`=?, `token`=?, `update_at`=?, `device_info`=? WHERE `customer_id`=?",
+        "UPDATE `courses` SET `course_name`=?, `course_description`=?, `course_expired_days`=?,`course_expired_date`=?, `course_image`=?, `course_length`=?, `course_number_of_videos`=?, `course_price`=?, `course_status`=?, `update_at`=? WHERE `course_id`=?",
         [
-          course.name,
-          course.email,
-          course.telephone,
-          course.ip,
-          course.status,
-          course.token,
+          course.course_name,
+          course.course_description,
+          course.course_expired_days,
+          course.course_expired_date,
+          course.course_image,
+          course.course_length,
+          course.course_number_of_videos,
+          course.course_price,
+          course.course_status,
           course.update_at,
-          course.device_info,
-          course.customer_id,
+          course.course_id,
         ]
       );
       return result.affectedRows;
@@ -96,16 +97,53 @@ const courses = {
     return result[0]["COUNT(*)"];
   },
 
-  findById: async (customerId) => {
+  findById: async (courseId) => {
     const query = `
-      SELECT c.*, ca.*
-      FROM course c
-      JOIN course_data ca ON c.course_id = ca.course_id
-      WHERE c.course_id = ?`;
+      SELECT * FROM courses
+      WHERE course_id = ?`;
 
-    const rows = await queryAsync(query, [customerId]);
+    const [rows] = await queryAsync(query, [courseId]);
+    return rows;
+  },
+
+  findByMultipleIds: async (courseId) => {
+    const query = `SELECT * FROM courses WHERE course_id IN (?)`;
+
+    try {
+      const rows = await queryAsync(query, [courseId]);
+      return rows;
+    } catch (error) {
+      throw new Error(`Error in findById: ${error.message}`);
+    }
+  },
+
+  deleteMultiple: async (courseIds) => {
+    try {
+      if (!Array.isArray(courseIds) || courseIds.length === 0) {
+        throw new Error("Invalid or empty 'courseIds' array.");
+      }
+
+      const query = `
+        DELETE FROM courses
+        WHERE course_id IN (?);
+      `;
+
+      const result = await queryAsync(query, [courseIds]);
+
+      return result.affectedRows > 0 ? courseIds : [];
+    } catch (error) {
+      throw error;
+    }
+  },
+  findByCourseName: async (searchString) => {
+    const query = `
+      SELECT *
+      FROM courses
+      WHERE course_name LIKE ?;`;
+
+    const rows = await queryAsync(query, [`%${searchString}%`]);
     return rows;
   },
 };
 
-export default courses;
+export default courseModel;
