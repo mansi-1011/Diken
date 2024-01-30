@@ -3,14 +3,13 @@ import React from 'react'
 import style from './navbar.module.css'
 import Image from 'next/image'
 import navlogo from "@/src/assets/logo.png"
+import { useRouter } from 'next/navigation';
 
 const Navbar = ({ logout }) => {
+  const router = useRouter()
   const handleLogout = async () => {
-    const res = await getAPI("/users/logout");
-    if (res.status === 1) {
-      router.push("/login");
-      console.log(res);
-    }
+    localStorage.clear()
+    router.replace("/login");
   }
   return (
     <div className={style.navbar}>

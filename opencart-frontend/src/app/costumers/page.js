@@ -25,13 +25,12 @@ const Page = () => {
         },
         withCredentials: true,
       });
-      if (data.status !== 200) {
-        router.push('/login');
-      } else if (data.status == 200) {
-        setCostomersData(data.data);
-      }
+      console.log(data)
+
+        setCostomersData(data?.data);
+      
     } catch (err) {
-      console.error(err);
+      console.log("first")
     } finally {
       setLoading(false);
     }
@@ -67,7 +66,7 @@ const Page = () => {
 
       <div className="table_component">
         <div className="pending_table">
-          <CostomersData data={costomersData} />{' '}
+          <CostomersData data={costomersData}  getAllReworkData={getAllReworkData} />{' '}
           {loading ? <div className="loader_table"> <div className="loader table_loader_change"></div></div> : null}
         </div>
       </div>
