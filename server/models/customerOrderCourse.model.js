@@ -1,20 +1,16 @@
 import queryAsync from "../lib/db.js";
 
-const courseModel = {
-  create: async (course) => {
+const customerOrderCourseModel = {
+  create: async (customerCourse) => {
     try {
       const result = await queryAsync(
-        "INSERT INTO `courses`(`course_name`, `course_description`, `course_expired_days`, `course_image`, `course_length`, `course_number_of_videos`, `course_price`, `course_status`, `create_at`) VALUES (?,?,?,?,?,?,?,?,?)",
+        "INSERT INTO `customer_order_courses`(`customer_id`, `course_id`, `customer_order_courses_status`, `customer_order_courses_expired_date`, `create_at`) VALUES (? , ? , ? , ? , ?)",
         [
-          course.course_name,
-          course.course_description,
-          course.course_expired_days,
-          course.course_image,
-          course.course_length,
-          course.course_number_of_videos,
-          course.course_price,
-          course.course_status,
-          course.create_at,
+          customerCourse.customer_id,
+          customerCourse.course_id,
+          customerCourse.customer_order_courses_status,
+          customerCourse.customer_order_courses_expired_date,
+          customerCourse.create_at,
         ]
       );
       return result.insertId;
@@ -58,7 +54,7 @@ const courseModel = {
       //   LIMIT ${limit} OFFSET ${offset}
       // `;
       const query = `
-      SELECT c.course_id, c.course_name, c.course_description, c.course_expired_days,
+      SELECT c.course_id, c.course_name, c.course_description, c.course_expired_days, c.course_expired_date,
              c.course_image, c.course_length, c.course_number_of_videos, c.course_price, c.course_status,
              CONCAT('[', GROUP_CONCAT(
                CONCAT(
@@ -144,4 +140,4 @@ const courseModel = {
   },
 };
 
-export default courseModel;
+export default customerOrderCourseModel;

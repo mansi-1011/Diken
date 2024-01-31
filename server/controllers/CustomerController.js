@@ -7,13 +7,52 @@ import UAParser from "ua-parser-js";
 import customer from "../models/customer.model.js";
 import customerAddress from "../models/customerAddress.model.js";
 import courseModel from "../models/course.model.js";
+import customerOrderCourseModel from "../models/customerOrderCourse.model.js";
 
 const { toLower } = lodash;
 export default class CustomerController {
   static async insertCustomer(req, res) {
     try {
-      const { general, address } = req.body;
+      // const data = {
+      //   general: {
+      //     name: "testuser12",
+      //     email: "testuser2334534@gmail.com",
+      //     password: "12345",
+      //     telephone: "8490828266",
+      //     status: 1,
+      //   },
+      //   address: {
+      //     first_name: "mansi",
+      //     last_name: "patoliya3434",
+      //     company: "test",
+      //     company_id: "1454540",
+      //     tax_id: "45445454",
+      //     address_1: "120 test",
+      //     address_2: "tewst 3r3ere",
+      //     city: "surat",
+      //     postcode: "390566576",
+      //     country: "india",
+      //     state: "gujarat",
+      //   },
+      //   payment_details: {
+      //     payment_method: "case on delivery",
+      //     payment_transaction_id: "34343",
+      //   },
+      //   course_order: [
+      //     {
+      //       course_id: 1,
+      //       expier_date: "",
+      //     },
+      //     {
+      //       course_id: 2,
+      //       expier_date: "",
+      //     },
+      //   ],
+      // };
+      const { general, address, payment_details, course_order } = req.body;
       const { name, email, password, telephone, status } = general;
+      const { payment_method, payment_transaction_id } = payment_details;
+
       const {
         first_name,
         last_name,
@@ -40,6 +79,13 @@ export default class CustomerController {
       } else {
         var newPassword = await bcrypt.hash(password, 10);
 
+        const course_expired_days = 2;
+        let currentDate = new Date();
+        let futureDate = new Date();
+        futureDate.setDate(currentDate.getDate() + course_expired_days);
+
+        const course_expired_date = futureDate.toISOString().split("T")[0];
+
         const customerId = await customer.create({
           name: toLower(name),
           email: toLower(email),
@@ -50,6 +96,8 @@ export default class CustomerController {
           token: null,
           create_at: formattedDate,
           device_info: null,
+          payment_method,
+          payment_transaction_id,
         });
 
         await customerAddress.create({
@@ -67,6 +115,18 @@ export default class CustomerController {
           state: state,
           create_at: formattedDate,
         });
+
+        if (course_order && course_order.length > 0) {
+          for (const data of course_order) {
+            await customerOrderCourseModel.create({
+              customer_id: customerId,
+              course_id: data.course_id,
+              customer_order_courses_status: 'running',
+              customer_order_courses_expired_date: course_expired_date,
+              create_at: formattedDate,
+            });
+          }
+        }
         res.json({
           status: true,
           message: "Customer Created Successfully....",
@@ -354,6 +414,7 @@ export default class CustomerController {
             status: true,
             message: "Customer Logged In...",
             token: token,
+            customer: customer,
           });
         } else {
           res.json({

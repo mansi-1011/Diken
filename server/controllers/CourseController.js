@@ -27,17 +27,12 @@ export default class CourseController {
         .slice(0, 19)
         .replace("T", " ");
 
-      let currentDate = new Date();
-      let futureDate = new Date();
-      futureDate.setDate(currentDate.getDate() + course_expired_days);
-
-      const course_expired_date = futureDate.toISOString().split("T")[0];
+   
 
       const courseId = await courseModel.create({
         course_name,
         course_description,
         course_expired_days,
-        course_expired_date: course_expired_date,
         course_image: image_path,
         course_length,
         course_number_of_videos,
@@ -140,7 +135,6 @@ export default class CourseController {
       var course_id = req.params.id;
       const course = await courseModel.findById(course_id);
       const courseData = await courseDataModel.findById(course_id);
-      console.log(courseData, "courseData");
       res.json({
         status: true,
         course: {
@@ -195,18 +189,12 @@ export default class CourseController {
         .slice(0, 19)
         .replace("T", " ");
 
-      let currentDate = new Date();
-      let futureDate = new Date();
-      futureDate.setDate(currentDate.getDate() + course_expired_days);
-
-      const course_expired_date = futureDate.toISOString().split("T")[0];
 
       await courseModel.update({
         course_id,
         course_name,
         course_description,
         course_expired_days,
-        course_expired_date,
         course_image: new_image,
         course_length,
         course_number_of_videos,

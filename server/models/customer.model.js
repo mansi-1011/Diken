@@ -4,7 +4,7 @@ const customer = {
   create: async (customerData) => {
     try {
       const result = await queryAsync(
-        "INSERT INTO `customer`(`name`, `email`, `telephone`, `password`, `ip`, `status`, `token`, `create_at`, `device_info`) VALUES (?, ?, ?, ?, ?, ?, ?,?,?)",
+        "INSERT INTO `customer`(`name`, `email`, `telephone`, `password`, `ip`, `status`, `token`, `create_at`, `device_info`, `payment_method`, `payment_transaction_id`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         [
           customerData.name,
           customerData.email,
@@ -15,6 +15,8 @@ const customer = {
           customerData.token,
           customerData.create_at,
           customerData.device_info,
+          customerData.payment_method,
+          customerData.payment_transaction_id,
         ]
       );
       return result.insertId;
@@ -26,7 +28,7 @@ const customer = {
   update: async (customerData) => {
     try {
       const result = await queryAsync(
-        "UPDATE `customer` SET `name`=?, `email`=?, `telephone`=?,`ip`=?, `status`=?, `token`=?, `update_at`=?, `device_info`=? WHERE `customer_id`=?",
+        "UPDATE `customer` SET `name`=?, `email`=?, `telephone`=?,`ip`=?, `status`=?, `token`=?, `update_at`=?, `device_info`=? , `payment_method`=?,`payment_transaction_id`=? WHERE `customer_id`=?",
         [
           customerData.name,
           customerData.email,
