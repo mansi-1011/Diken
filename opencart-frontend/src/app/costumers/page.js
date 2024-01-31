@@ -28,6 +28,11 @@ const Page = () => {
       console.log(data)
 
         setCostomersData(data?.data);
+
+        if (data.data.message === "User Token Not Valid") {
+          localStorage.clear()
+          router.replace("/login")
+        }
       
     } catch (err) {
       console.log("first")
@@ -39,7 +44,6 @@ const Page = () => {
   useEffect(() => {
     getAllReworkData();
   }, []);
-  const [selectedImage, setSelectedImage] = useState(null);
 
 
   return (
@@ -55,13 +59,7 @@ const Page = () => {
       </div>
       <div>
 
-      {/* Display the selected image (optional) */}
-      {selectedImage && (
-        <div>
-          <p>Selected Image:</p>
-          <img src={URL.createObjectURL(selectedImage)} alt="Selected" width="200" />
-        </div>
-      )}
+      
     </div>
 
       <div className="table_component">

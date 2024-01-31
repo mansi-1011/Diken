@@ -8,9 +8,10 @@ const Pages = () => {
     const router = useRouter()
     const route = [
         { title: "Dashboard", path: "/home" },
-        { title: "Orders", path: "/orders" },
-        { title: "Products", path: "/product" },
-        { title: "Customers", path: "/costumers" }
+        // { title: "Orders", path: "/orders" },
+        // { title: "Products", path: "/product" },
+        { title: "Customers", path: "/costumers" },
+        { title: "Course", path: "/course" }
     ]
     return (
         <>

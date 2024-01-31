@@ -1,0 +1,53 @@
+{
+    "status": true,
+    "state": [
+        {
+            "state_id": 33,
+            "country_id": 2,
+            "name": "Berat",
+            "code": "BR"
+        },
+        {
+            "state_id": 34,
+            "country_id": 1,
+            "name": "Bulqize",
+            "code": "BU"
+        },
+        {
+            "state_id": 35,
+            "country_id": 3,
+            "name": "Delvine",
+            "code": "DL"
+        },
+        {
+            "state_id": 36,
+            "country_id": 2,
+            "name": "Devoll",
+            "code": "DV"
+        },
+        {
+            "state_id": 37,
+            "country_id": 1,
+            "name": "Diber",
+            "code": "DI"
+        },
+        {
+            "state_id": 38,
+            "country_id": 2,
+            "name": "Durres",
+            "code": "DR"
+        },
+        {
+            "state_id": 39,
+            "country_id": 2,
+            "name": "Elbasan",
+            "code": "EL"
+        },
+        {
+            "state_id": 40,
+            "country_id": 2,
+            "name": "Kolonje",
+            "code": "ER"
+        }
+    ]
+}
