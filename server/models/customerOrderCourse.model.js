@@ -42,102 +42,61 @@ const customerOrderCourseModel = {
     }
   },
 
-  findAllWithCourseData: async (conditions, order, limit, offset) => {
+  findAllWithCourseData: async (customer_id) => {
     try {
-      // const query = `
-      //   SELECT c.*, cd.*
-      //   FROM courses c
-      //   LEFT JOIN course_data cd ON c.course_id = cd.course_id
-      //   WHERE ${conditions}
-      //   GROUP BY c.course_id
-      //   ORDER BY c.${order}
-      //   LIMIT ${limit} OFFSET ${offset}
-      // `;
       const query = `
-      SELECT c.course_id, c.course_name, c.course_description, c.course_expired_days, c.course_expired_date,
-             c.course_image, c.course_length, c.course_number_of_videos, c.course_price, c.course_status,
-             CONCAT('[', GROUP_CONCAT(
-               CONCAT(
-                 '{"course_data_id":', cd.course_data_id, 
-                 ',"course_data_type":"', cd.course_data_type, 
-                 '","course_data_title":"', cd.course_data_title, 
-                 '","course_data_url":"', cd.course_data_url, 
-                 '","course_data_length":"', cd.course_data_length, 
-                 '","course_count_of_view":', cd.course_data_count_of_view, 
-                 ',"course_sort_order":', cd.course_data_sort_order, '}'
-               )
-             ), ']') AS course_data
-      FROM courses c
-      LEFT JOIN course_data cd ON c.course_id = cd.course_id
-      WHERE ${conditions}
-      GROUP BY c.course_id
-      ORDER BY c.${order} 
-      LIMIT ${limit} OFFSET ${offset}
-    `;
+      SELECT
+          cust.*,coc.*,
+          CONCAT('[', GROUP_CONCAT(
+              '{"course_id":', c.course_id,
+              ',"course_name":"', c.course_name,
+              '","course_description":"', c.course_description,
+              '","course_expired_days":"', c.course_expired_days,
+              '","course_image":"', c.course_image,
+              '","course_length":', c.course_length,
+              ',"course_number_of_videos":', c.course_number_of_videos, 
+              ',"course_price":', c.course_price,
+              ',"course_status":', c.course_status,
+              '}'
+          ), ']') AS courses
+      FROM
+          customer cust
+      LEFT JOIN
+          customer_order_courses coc ON cust.customer_id = coc.customer_id
+      LEFT JOIN
+          courses c ON coc.course_id = c.course_id
+      WHERE
+          cust.customer_id = ?
+      GROUP BY
+          cust.customer_id, cust.name, cust.email;
+      `;
 
-      const coursesWithCourseData = await queryAsync(query);
+      const coursesWithCourseData = await queryAsync(query, [customer_id]);
       return coursesWithCourseData;
     } catch (error) {
       throw error;
     }
   },
 
-  count: async (conditions) => {
-    const query = `
-      SELECT COUNT(*) FROM courses
-      WHERE ${conditions}
-    `;
-    const result = await queryAsync(query);
-    return result[0]["COUNT(*)"];
-  },
-
-  findById: async (courseId) => {
-    const query = `
-      SELECT * FROM courses
-      WHERE course_id = ?`;
-
-    const [rows] = await queryAsync(query, [courseId]);
-    return rows;
-  },
-
-  findByMultipleIds: async (courseId) => {
-    const query = `SELECT * FROM courses WHERE course_id IN (?)`;
-
+  deleteMultipleByCustomerId: async (customerIds) => {
     try {
-      const rows = await queryAsync(query, [courseId]);
-      return rows;
-    } catch (error) {
-      throw new Error(`Error in findById: ${error.message}`);
-    }
-  },
-
-  deleteMultiple: async (courseIds) => {
-    try {
-      if (!Array.isArray(courseIds) || courseIds.length === 0) {
-        throw new Error("Invalid or empty 'courseIds' array.");
+      if (!Array.isArray(customerIds) || customerIds.length === 0) {
+        throw new Error("Invalid or empty 'customerIds' array.");
       }
 
       const query = `
-        DELETE FROM courses
-        WHERE course_id IN (?);
+        DELETE FROM customer_order_courses
+        WHERE customer_id IN (?);
       `;
 
-      const result = await queryAsync(query, [courseIds]);
+      const result = await queryAsync(query, [customerIds]);
 
-      return result.affectedRows > 0 ? courseIds : [];
+      return result.affectedRows > 0 ? customerIds : [];
     } catch (error) {
       throw error;
     }
   },
-  findByCourseName: async (searchString) => {
-    const query = `
-      SELECT *
-      FROM courses
-      WHERE course_name LIKE ?;`;
 
-    const rows = await queryAsync(query, [`%${searchString}%`]);
-    return rows;
-  },
 };
 
 export default customerOrderCourseModel;

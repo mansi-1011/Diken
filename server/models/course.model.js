@@ -48,15 +48,6 @@ const courseModel = {
 
   findAllWithCourseData: async (conditions, order, limit, offset) => {
     try {
-      // const query = `
-      //   SELECT c.*, cd.*
-      //   FROM courses c
-      //   LEFT JOIN course_data cd ON c.course_id = cd.course_id
-      //   WHERE ${conditions}
-      //   GROUP BY c.course_id
-      //   ORDER BY c.${order}
-      //   LIMIT ${limit} OFFSET ${offset}
-      // `;
       const query = `
       SELECT c.course_id, c.course_name, c.course_description, c.course_expired_days,
              c.course_image, c.course_length, c.course_number_of_videos, c.course_price, c.course_status,
@@ -84,6 +75,29 @@ const courseModel = {
     } catch (error) {
       throw error;
     }
+  },
+
+  findByCourseId: async (courseId) => {
+    const query = `
+      SELECT * FROM courses
+      WHERE course_id = ?`;
+  
+    const [rows] = await queryAsync(query, [courseId]);
+  
+    // Ensure the field names match the expected field names in insertCustomer
+    return {
+      course_id: rows.course_id,
+      course_name: rows.course_name,
+      course_description: rows.course_description,
+      course_expired_days: parseInt(rows.course_expired_days), // Convert to integer
+      course_image: rows.course_image,
+      course_length: parseFloat(rows.course_length), // Convert to float
+      course_number_of_videos: parseInt(rows.course_number_of_videos), // Convert to integer
+      course_price: parseFloat(rows.course_price), // Convert to float
+      course_status: rows.course_status,
+      create_at: rows.create_at,
+      update_at: rows.update_at,
+    };
   },
 
   count: async (conditions) => {

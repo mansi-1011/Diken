@@ -13,43 +13,43 @@ const { toLower } = lodash;
 export default class CustomerController {
   static async insertCustomer(req, res) {
     try {
-      // const data = {
-      //   general: {
-      //     name: "testuser12",
-      //     email: "testuser2334534@gmail.com",
-      //     password: "12345",
-      //     telephone: "8490828266",
-      //     status: 1,
-      //   },
-      //   address: {
-      //     first_name: "mansi",
-      //     last_name: "patoliya3434",
-      //     company: "test",
-      //     company_id: "1454540",
-      //     tax_id: "45445454",
-      //     address_1: "120 test",
-      //     address_2: "tewst 3r3ere",
-      //     city: "surat",
-      //     postcode: "390566576",
-      //     country: "india",
-      //     state: "gujarat",
-      //   },
-      //   payment_details: {
-      //     payment_method: "case on delivery",
-      //     payment_transaction_id: "34343",
-      //   },
-      //   course_order: [
-      //     {
-      //       course_id: 1,
-      //       expier_date: "",
-      //     },
-      //     {
-      //       course_id: 2,
-      //       expier_date: "",
-      //     },
-      //   ],
-      // };
-      const { general, address, payment_details, course_order } = req.body;
+      const data = {
+        general: {
+          name: "mansi",
+          email: "mansi243@gmail.com",
+          password: "12345",
+          telephone: "8490828266",
+          status: 1,
+        },
+        address: {
+          first_name: "mansi",
+          last_name: "patoliya3434",
+          company: "test",
+          company_id: "1454540",
+          tax_id: "45445454",
+          address_1: "120 test",
+          address_2: "tewst 3r3ere",
+          city: "surat",
+          postcode: "390566576",
+          country: "india",
+          state: "gujarat",
+        },
+        payment_details: {
+          payment_method: "case on delivery",
+          payment_transaction_id: "34343",
+        },
+        course_order: [
+          {
+            course_id: 1,
+            expier_date: "",
+          },
+          {
+            course_id: 2,
+            expier_date: "",
+          },
+        ],
+      };
+      const { general, address, payment_details, course_order } = data;
       const { name, email, password, telephone, status } = general;
       const { payment_method, payment_transaction_id } = payment_details;
 
@@ -78,13 +78,6 @@ export default class CustomerController {
         });
       } else {
         var newPassword = await bcrypt.hash(password, 10);
-
-        const course_expired_days = 2;
-        let currentDate = new Date();
-        let futureDate = new Date();
-        futureDate.setDate(currentDate.getDate() + course_expired_days);
-
-        const course_expired_date = futureDate.toISOString().split("T")[0];
 
         const customerId = await customer.create({
           name: toLower(name),
@@ -118,10 +111,28 @@ export default class CustomerController {
 
         if (course_order && course_order.length > 0) {
           for (const data of course_order) {
+            const courseOrderInfo = await courseModel.findByCourseId(
+              data.course_id
+            );
+
+            if (!courseOrderInfo) {
+              return res.json({
+                status: false,
+                message: "Invalid course_id in course_order",
+              });
+            }
+            let currentDate = new Date();
+            let futureDate = new Date();
+            futureDate.setDate(
+              currentDate.getDate() + courseOrderInfo.course_expired_days
+              );
+              const course_expired_date = futureDate.toISOString().split("T")[0];
+              console.log(futureDate ,"courseOrderInfo");
+
             await customerOrderCourseModel.create({
               customer_id: customerId,
               course_id: data.course_id,
-              customer_order_courses_status: 'running',
+              customer_order_courses_status: 1,
               customer_order_courses_expired_date: course_expired_date,
               create_at: formattedDate,
             });
@@ -206,7 +217,9 @@ export default class CustomerController {
   static async editCustomer(req, res) {
     try {
       var customer_id = req.params.id;
-      const customerData = await customer.findById(customer_id);
+      const customerData = await customerOrderCourseModel.findAllWithCourseData(
+        customer_id
+      );
       res.json({
         status: true,
         customer: customerData,
@@ -287,8 +300,10 @@ export default class CustomerController {
   static async deleteMultipleCustomers(req, res) {
     try {
       const { ids } = req.body;
+      // const ids = [6];
       const deletedCustomerIds = await customer.deleteMultiple(ids);
       await customerAddress.deleteMultipleByCustomerIds(deletedCustomerIds);
+      await customerOrderCourseModel.deleteMultipleByCustomerId(ids);
 
       res.json({
         status: true,
