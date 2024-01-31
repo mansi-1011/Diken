@@ -1,7 +1,7 @@
 "use client"
 import Navbar from '@/src/component/navbar/Navbar';
 import Pages from '@/src/component/pages/Pages';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { FieldArray, useFormik } from 'formik';
 import { costomerInitialValue, costomerValidationSchema } from '@/src/utils/validation';
 import { useRouter } from 'next/navigation';
@@ -10,6 +10,7 @@ import { toast } from 'react-toastify';
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 const page = () => {
   const router = useRouter()
+  const dropdownRef = useRef(null);
   const formik = useFormik({
     initialValues: costomerInitialValue,
     validationSchema: costomerValidationSchema,
@@ -73,7 +74,7 @@ const page = () => {
           },
           withCredentials: true,
         });
-        console.log(response)
+        // console.log(response)
         setAllState(response.data.states);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -86,29 +87,71 @@ const page = () => {
 
 
   const list = ["Information", "Address", "payment", "course order"];
-  const [currentTab, setCurrentTab] = useState(0);
+  const [currentTab, setCurrentTab] = useState(3);
 
-  // const [inputValue, setInputValue] = useState('');
-  // const [suggestions, setSuggestions] = useState([]);
 
-  // const handleChange = async () => {
-  //   // Make an API call when the input changes
-  //   try {
-  //     const response = await axios.get(BASE_URL + `/api/customer/autocomplete?filter=${inputValue}`);
-  //     console.log(response)
-  //     // const data = await response.json();
-  //     setSuggestions(data); // Assuming API returns an array of suggestions
-  //   } catch (error) {
-  //     console.error('Error fetching data:', error);
-  //   }
-  // };
 
-  // useEffect(() => {
-  //   handleChange(); // Initial API call, you can skip this if you want
-  // }, []);
+  const [dropdownOptions, setDropdownOptions] = useState([]);
+  const [findCource] = useState()
+
+  const handlefindcource = async (e) => {
+    // console.log(e.target.value)
+    try {
+
+      const token = localStorage.getItem('authToken');
+      const response = await axios.get(BASE_URL + `/api/customer/autocomplete?filter=${e.target.value}`, {
+        headers: {
+          'x-access-token': token,
+        },
+        withCredentials: true,
+      });
+      setDropdownOptions(response);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  }
+  const parsFilterData = (e) => {
+    console.log(e)
+    const isCourseIdExists = formik.values.course_order.some(item => item.course_id === e.course_id);
+
+    if (!isCourseIdExists) {
+      formik.setValues((prevValues) => ({
+        ...prevValues,
+        course_order: [...prevValues.course_order, { course_id: e.course_id }],
+      }));
+    } 
+
+    setDropdownOptions([])
+
+  }
+
+console.log(formik.values)
+
+  const handleClickOutside = (event) => {
+    if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      setDropdownOptions([]);
+    }
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        setDropdownOptions([]);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+
 
   return (
-    <div>
+    <div >
       <Navbar logout="logout" />
       <Pages />
       <div className="page-title"> Add Costomers   </div>
@@ -173,7 +216,6 @@ const page = () => {
           </div>
 
         </>}
-        {/* Repeat similar structure for other general fields */}
 
         {currentTab == 1 && <>
           <div>
@@ -253,7 +295,6 @@ const page = () => {
             <button className='btn' type="button" onClick={() => setCurrentTab(currentTab + 1)}>next</button>
           </div>
         </>}
-        {/* Repeat similar structure for other address fields */}
         {currentTab == 2 && <>
           <div>
             <label htmlFor="payment_method"> Payment Method : </label>
@@ -280,31 +321,28 @@ const page = () => {
           </div>
         </>}
         {currentTab == 3 && <>
-{/* 
-          <div>
-            <label htmlFor={`find_cource`}>find Cource:</label>
-            <input
-              type="texxt"
-              id={`find_cource`}
-              name={`find_cource`}
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-            />
-          </div>
-          <ul>
-        {suggestions.map((suggestion) => (
-          <li key={suggestion.id}>{suggestion.name}</li>
-        ))}
-      </ul> */}
-          {/* <select>
-            {cources.map((cource) => (
-              <option key={cource.id} value={cource.id}>
-                {cource.name}
-              </option>
-            ))}
-          </select> */}
 
-          {formik.values.course_order.map((course, index) => (
+          <div className='find_field' ref={dropdownRef}>
+            <label>find cource : </label>
+            <div className=''>
+              <input
+                type="text"
+                autoComplete="off"
+                value={findCource}
+                onChange={handlefindcource}
+              />
+              {dropdownOptions &&
+                <ul className={dropdownOptions?.data?.courses && dropdownOptions?.data?.courses.length > 0 ? 'cource_find' : ''}>
+                  {dropdownOptions?.data?.courses?.map((suggestion) => (
+                    <li key={suggestion.course_id} onClick={() => parsFilterData(suggestion)} className='list_cource'>{suggestion.course_name}</li>
+                  ))}
+                </ul>}
+            </div>
+          </div>
+
+
+
+          {/* {formik.values.course_order.map((course, index) => (
             <div key={index}>
               <label htmlFor={`course_order[${index}].course_id`}>Course ID:</label>
               <input
@@ -326,10 +364,8 @@ const page = () => {
                 <div>{formik.errors.course_order[index].expier_date}</div>
               )}
             </div>
-          ))}
+          ))} */}
 
-          {/* {console.log(formik.touched, formik.errors)} */}
-          {/* {formik.touched && formik.errors && toast.warning("please full fill form.")} */}
           <button className='btn' type="submit">Submit</button>
           {/* <button className='btn' type="button" onClick={() => router.push("/costumers")} >cancel</button> */}
         </>}

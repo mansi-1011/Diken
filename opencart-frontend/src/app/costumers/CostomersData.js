@@ -36,18 +36,24 @@ const CostomersData = ({ data, getAllReworkData }) => {
         },
         { title: "Customer Name", data: "name", orderable: false },
         { title: "E-mail", data: "email" },
-        { title: "Status", data: "status" },
         { title: "IP", data: "ip" },
+        { title: "Status", data: "status" ,
+        render: function (data, type, row) {
+          if (data == 1) {  return "enable"} else  {return "disable"}
+         
+      }
+      
+      },
+        {
+          title: "Login into Store",
+          data: "device_info",
+        },
         {
           title: "Date Added",
           data: "create_at",
           render: function (data) {
             return convertDateFormat(data);
           },
-        },
-        {
-          title: "Login into Store",
-          data: "device_info",
         },
         {
           title: "Action",
@@ -61,7 +67,7 @@ const CostomersData = ({ data, getAllReworkData }) => {
       initComplete: function () {
         this.api().columns().every(function (index) {
           var column = this;
-          if (index !== 0 && index !== 7 && index !== 5) {
+          if (index !== 0 && index !== 5 && index !== 4 && index !== 7 && index !== 6) {
             var input = document.createElement("input");
             var container = document.createElement("div");
             $(container).addClass("filter-container");

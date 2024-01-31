@@ -33,14 +33,7 @@ export const costomerInitialValue = {
     transaction_id: ''
   },
   course_order: [
-    {
-      course_id: 1,
-      expier_date: '',
-    },
-    {
-      course_id: 2,
-      expier_date: '',
-    },
+   
   ]
 };
 
@@ -72,7 +65,54 @@ export const costomerValidationSchema = Yup.object().shape({
   course_order: Yup.array().of(
     Yup.object().shape({
       course_id: Yup.number().required('Course ID is required'),
-      expier_date: Yup.string(), // You might want to add a validation for the expiration date if needed
+      // expier_date: Yup.string(), // You might want to add a validation for the expiration date if needed
     })
   )
 });
+
+
+
+export const courceinitalData = {
+    course: {
+      course_name: "",
+      course_description: "",
+      course_expired_days: '',
+      course_length: '',
+      course_number_of_videos: '',
+      course_price: '',
+      course_status: '',
+    },
+    course_data: [
+      {
+        course_data_type: "",
+        course_data_title: "",
+        course_data_url: "",
+        course_data_length: "",
+        course_count_of_view: "",
+        course_sort_order: "",
+      }
+    ],
+  };
+
+
+  export const courceValideter = Yup.object({
+    course: Yup.object({
+      course_name: Yup.string().required('Course name is required'),
+      course_description: Yup.string().required('Course discripetion is required'),
+      course_expired_days: Yup.string().required('Course exp days is required'),
+      course_length: Yup.string().required('Course length is required'),
+      course_number_of_videos: Yup.string().required('Course no of video is required'),
+      course_price: Yup.string().required('Course price is required'),
+      course_status: Yup.string().required('Course status is required'),
+      // Add validation rules for other course properties
+    }),
+    course_data: Yup.array().of(
+      Yup.object({
+        course_data_type: Yup.string().required('Course data type is required'),
+        course_data_title: Yup.string().required('Course data title is required'),
+        course_data_url: Yup.string().required('Course data URL is required'),
+        course_data_length: Yup.string().required('Course data Length is required'),
+        course_sort_order: Yup.string().required('Course data short order is required')
+      })
+    ),
+  });
