@@ -13,43 +13,43 @@ const { toLower } = lodash;
 export default class CustomerController {
   static async insertCustomer(req, res) {
     try {
-      const data = {
-        general: {
-          name: "mansi",
-          email: "mansi243@gmail.com",
-          password: "12345",
-          telephone: "8490828266",
-          status: 1,
-        },
-        address: {
-          first_name: "mansi",
-          last_name: "patoliya3434",
-          company: "test",
-          company_id: "1454540",
-          tax_id: "45445454",
-          address_1: "120 test",
-          address_2: "tewst 3r3ere",
-          city: "surat",
-          postcode: "390566576",
-          country: "india",
-          state: "gujarat",
-        },
-        payment_details: {
-          payment_method: "case on delivery",
-          payment_transaction_id: "34343",
-        },
-        course_order: [
-          {
-            course_id: 1,
-            expier_date: "",
-          },
-          {
-            course_id: 2,
-            expier_date: "",
-          },
-        ],
-      };
-      const { general, address, payment_details, course_order } = data;
+      // const data = {
+      //   general: {
+      //     name: "mansi",
+      //     email: "mansi243@gmail.com",
+      //     password: "12345",
+      //     telephone: "8490828266",
+      //     status: 1,
+      //   },
+      //   address: {
+      //     first_name: "mansi",
+      //     last_name: "patoliya3434",
+      //     company: "test",
+      //     company_id: "1454540",
+      //     tax_id: "45445454",
+      //     address_1: "120 test",
+      //     address_2: "tewst 3r3ere",
+      //     city: "surat",
+      //     postcode: "390566576",
+      //     country: "india",
+      //     state: "gujarat",
+      //   },
+      //   payment_details: {
+      //     payment_method: "case on delivery",
+      //     payment_transaction_id: "34343",
+      //   },
+      //   course_order: [
+      //     {
+      //       course_id: 1,
+      //       expier_date: "",
+      //     },
+      //     {
+      //       course_id: 2,
+      //       expier_date: "",
+      //     },
+      //   ],
+      // };
+      const { general, address, payment_details, course_order } = req.body;
       const { name, email, password, telephone, status } = general;
       const { payment_method, payment_transaction_id } = payment_details;
 
