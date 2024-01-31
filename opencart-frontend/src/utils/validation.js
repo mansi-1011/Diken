@@ -26,9 +26,22 @@ export const costomerInitialValue = {
     city: '',
     postcode: '',
     country: '',
-    state: '',
-    default_address: 1,
+    state: ''
   },
+  payment: {
+    payment_method: '',
+    transaction_id: ''
+  },
+  course_order: [
+    {
+      course_id: 1,
+      expier_date: '',
+    },
+    {
+      course_id: 2,
+      expier_date: '',
+    },
+  ]
 };
 
 export const costomerValidationSchema = Yup.object().shape({
@@ -52,4 +65,14 @@ export const costomerValidationSchema = Yup.object().shape({
     country: Yup.string().required('Country is required'),
     state: Yup.string().required('State is required'),
   }),
+  payment: Yup.object().shape({
+    payment_method: Yup.string().required('Payment Method is required'),
+    transaction_id: Yup.string().required('Transaction id is required')
+  }),
+  course_order: Yup.array().of(
+    Yup.object().shape({
+      course_id: Yup.number().required('Course ID is required'),
+      expier_date: Yup.string(), // You might want to add a validation for the expiration date if needed
+    })
+  )
 });

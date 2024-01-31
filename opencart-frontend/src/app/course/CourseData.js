@@ -1,17 +1,15 @@
 import $ from "jquery";
 import "datatables.net";
-import React, { useEffect, useRef, useState } from "react";
+import { useRouter } from 'next/navigation'
+import React, { useEffect, useRef } from 'react'
 import { convertDateFormat } from "@/src/utils/function";
-import axios from "axios";
-import { useRouter } from "next/navigation";
-import { toast } from "react-toastify";
 
-const CostomersData = ({ data, getAllReworkData }) => {
-  console.log(data)
+const CourseData = ({data}) => {
+    console.log(data)
   const router = useRouter()
   const dataTableRef = useRef(null);
-  const [loading, setLoading] = useState(false);
   const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+
 
   useEffect(() => {
     const table = $(dataTableRef.current).DataTable({
@@ -22,7 +20,7 @@ const CostomersData = ({ data, getAllReworkData }) => {
         searchPlaceholder: "Search here...",
         search: "",
       },
-      columnDefs: [{ targets: [1, 2, 3, 4, 5, 6], orderable: false }],
+      columnDefs: [{ targets: [1, 2, 3, 4], orderable: false }],
       responsive: true,
       data: data?.aaData,
       columns: [
@@ -31,24 +29,22 @@ const CostomersData = ({ data, getAllReworkData }) => {
           data: null,
           orderable: false,
           render: function (data, type, row) {
-            return `<input className="table_checkbox" style="width: 50px;" type="checkbox" value="${row.customer_id}" />`;
+            return `<input className="table_checkbox" style="width: 50px;" type="checkbox" value="${row.course_id}" />`;
           },
         },
-        { title: "Customer Name", data: "name", orderable: false },
-        { title: "E-mail", data: "email" },
-        { title: "Status", data: "status" },
-        { title: "IP", data: "ip" },
-        {
-          title: "Date Added",
-          data: "create_at",
-          render: function (data) {
-            return convertDateFormat(data);
-          },
-        },
-        {
-          title: "Login into Store",
-          data: "device_info",
-        },
+        { title: "Image", data: "course_image", render: function (data, type, row) {
+            console.log(`${BASE_URL}/api/${data}`)
+            return <img src={`${BASE_URL}/${data}`}></img>
+            
+            // return data
+        } },
+        { title: "Product Name", data: "course_name", orderable: false },
+        { title: "Price", data: "course_price" },
+        { title: "Status", data: "course_status",  render: function (data, type, row) {
+            if (data == 1) {  return "enable"} else  {return "disable"}
+           
+        } },
+      
         {
           title: "Action",
           data: "customer_id",
@@ -61,7 +57,7 @@ const CostomersData = ({ data, getAllReworkData }) => {
       initComplete: function () {
         this.api().columns().every(function (index) {
           var column = this;
-          if (index !== 0 && index !== 7 && index !== 5) {
+          if (index !== 0 && index !== 1 && index !== 5 && index !== 4) {
             var input = document.createElement("input");
             var container = document.createElement("div");
             $(container).addClass("filter-container");
@@ -125,11 +121,9 @@ const CostomersData = ({ data, getAllReworkData }) => {
 
   return (
     <>
-        <button className="btn m-0" type="button" onClick={(handleRefreshClick) => handleGetSelectedIds(handleRefreshClick)}>delete</button>
-      {/* </div> */}
-      <table ref={dataTableRef} className="display_table" id="example" width="100%"></table>
+        <table ref={dataTableRef} className="display_table" id="example" width="100%"></table>
     </>
-  );
-};
+  )
+}
 
-export default CostomersData;
+export default CourseData

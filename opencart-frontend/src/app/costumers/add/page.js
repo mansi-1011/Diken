@@ -1,8 +1,8 @@
 "use client"
 import Navbar from '@/src/component/navbar/Navbar';
 import Pages from '@/src/component/pages/Pages';
-import React, { useState } from 'react';
-import { useFormik } from 'formik';
+import React, { useEffect, useState } from 'react';
+import { FieldArray, useFormik } from 'formik';
 import { costomerInitialValue, costomerValidationSchema } from '@/src/utils/validation';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
@@ -15,23 +15,25 @@ const page = () => {
     validationSchema: costomerValidationSchema,
     onSubmit: async values => {
       try {
-      const token = localStorage.getItem('authToken');
+        const token = localStorage.getItem('authToken');
         const response = await axios.post(BASE_URL + '/api/customer/insert', values, {
           headers: {
             'Content-Type': 'application/json',
-              'x-access-token': token
+            'x-access-token': token
           },
         });
+        console.log(response)
         if (response.data.status == false) {
           localStorage.clear()
           router.replace("/login")
         } else if (response.data.status == true) {
+          router.replace("/costumers")
           toast.success("Customer add successfully.")
         }
       } catch (error) {
 
         localStorage.clear()
-          router.replace("/login")
+        router.replace("/login")
         // Handle errors
       } finally {
         // Regardless of success or failure, setSubmitting to false
@@ -39,8 +41,71 @@ const page = () => {
       }
     },
   });
+  const [contries, setContries] = useState()
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const token = localStorage.getItem('authToken');
+        const response = await axios.get(BASE_URL + '/api/customer/country', {
+          headers: {
+            'x-access-token': token,
+          },
+          withCredentials: true,
+        });
+        setContries(response.data.country);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const [allState, setAllState] = useState()
+
+  useEffect(() => {
+    const fetchData = async (e) => {
+      try {
+        const token = localStorage.getItem('authToken');
+        const response = await axios.get(BASE_URL + `/api/customer/country/${e}`, {
+          headers: {
+            'x-access-token': token,
+          },
+          withCredentials: true,
+        });
+        console.log(response)
+        setAllState(response.data.states);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData(formik.values.address.country);
+  }, [formik.values.address.country]);
 
 
+
+  const list = ["Information", "Address", "payment", "course order"];
+  const [currentTab, setCurrentTab] = useState(0);
+
+  // const [inputValue, setInputValue] = useState('');
+  // const [suggestions, setSuggestions] = useState([]);
+
+  // const handleChange = async () => {
+  //   // Make an API call when the input changes
+  //   try {
+  //     const response = await axios.get(BASE_URL + `/api/customer/autocomplete?filter=${inputValue}`);
+  //     console.log(response)
+  //     // const data = await response.json();
+  //     setSuggestions(data); // Assuming API returns an array of suggestions
+  //   } catch (error) {
+  //     console.error('Error fetching data:', error);
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   handleChange(); // Initial API call, you can skip this if you want
+  // }, []);
 
   return (
     <div>
@@ -48,110 +113,226 @@ const page = () => {
       <Pages />
       <div className="page-title"> Add Costomers   </div>
 
-      <form onSubmit={formik.handleSubmit}>
-        General Information
-        <div>
-          <label htmlFor="name">Name</label>
-          <input type="text" id="name" name="general.name" onChange={formik.handleChange} value={formik.values.general.name} />
-          {formik.touched.general?.name && formik.errors.general?.name && <div>{formik.errors.general.name}</div>}
-        </div>
-        <div>
-          <label htmlFor="email">E-mail</label>
-          <input type="text" id="email" name="general.email" onChange={formik.handleChange} value={formik.values.general.email} />
-          {formik.touched.general?.email && formik.errors.general?.email && <div>{formik.errors.general.email}</div>}
-        </div>
-        <div>
-          <label htmlFor="password">Password</label>
-          <input type="password" id="password" name="general.password" onChange={formik.handleChange} value={formik.values.general.password} />
-          {formik.touched.general?.password && formik.errors.general?.password && <div>{formik.errors.general.password}</div>}
-        </div>
-        <div>
-          <label htmlFor="telephone">telephone</label>
-          <input type="text" id="telephone" name="general.telephone" onChange={formik.handleChange} value={formik.values.general.telephone} />
-          {formik.touched.general?.telephone && formik.errors.general?.telephone && <div>{formik.errors.general.telephone}</div>}
-        </div>
-
-        <div>
-          <label htmlFor="status">Status</label>
-          <select
-            id="status"
-            name="general.status"
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-            value={formik.values.general.status}
-          >
-            <option value="0">Disable</option>
-            <option value="1">Enable</option>
-          </select>
+      <div className="tab-container">
+        {list.map((li, index) => {
+          return (
+            <div className={`tab ${index == currentTab ? "active" : null}`} key={li} onClick={() => setCurrentTab(index)} >
+              {li}
+            </div>
+          )
+        })}
+      </div>
 
 
 
-          {formik.touched.general?.status && formik.errors.general?.status && (
-            <div>{formik.errors.general.status}</div>
-          )}
-        </div>
+      <form className='form_data' onSubmit={formik.handleSubmit}>
+        {currentTab == 0 && <>
+          <div>
+            <label htmlFor="name">Name : </label>
+            <input type="text" id="name" name="general.name" onChange={formik.handleChange} value={formik.values.general.name} />
+            {formik.touched.general?.name && formik.errors.general?.name && <div>{formik.errors.general.name}</div>}
+          </div>
+          <div>
+            <label htmlFor="email">E-mail : </label>
+            <input type="text" id="email" name="general.email" onChange={formik.handleChange} value={formik.values.general.email} />
+            {formik.touched.general?.email && formik.errors.general?.email && <div>{formik.errors.general.email}</div>}
+          </div>
+          <div>
+            <label htmlFor="password">Password : </label>
+            <input type="password" id="password" name="general.password" onChange={formik.handleChange} value={formik.values.general.password} />
+            {formik.touched.general?.password && formik.errors.general?.password && <div>{formik.errors.general.password}</div>}
+          </div>
+          <div>
+            <label htmlFor="telephone">telephone : </label>
+            <input type="text" id="telephone" name="general.telephone" onChange={formik.handleChange} value={formik.values.general.telephone} />
+            {formik.touched.general?.telephone && formik.errors.general?.telephone && <div>{formik.errors.general.telephone}</div>}
+          </div>
+
+          <div>
+            <label htmlFor="status">Status : </label>
+            <select
+              id="status"
+              name="general.status"
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              value={formik.values.general.status}
+            >
+              <option value="0">Disable</option>
+              <option value="1">Enable</option>
+            </select>
+
+
+
+            {formik.touched.general?.status && formik.errors.general?.status && (
+              <div>{formik.errors.general.status}</div>
+            )}
+          </div>
+
+          <div>
+            <button className='btn' type="button" onClick={() => setCurrentTab(currentTab + 1)}>next</button>
+          </div>
+
+        </>}
         {/* Repeat similar structure for other general fields */}
 
-        Address Information
-        <div>
-          <label htmlFor="first_name">First Name</label>
-          <input type="text" id="first_name" name="address.first_name" onChange={formik.handleChange} value={formik.values.address.first_name} />
-          {formik.touched.address?.first_name && formik.errors.address?.first_name && <div>{formik.errors.address.first_name}</div>}
-        </div>
-        <div>
-          <label htmlFor="last_name">Last Name</label>
-          <input type="text" id="last_name" name="address.last_name" onChange={formik.handleChange} value={formik.values.address.last_name} />
-          {formik.touched.address?.last_name && formik.errors.address?.last_name && <div>{formik.errors.address.last_name}</div>}
-        </div>
-        <div>
-          <label htmlFor="company">Company</label>
-          <input type="text" id="company" name="address.company" onChange={formik.handleChange} value={formik.values.address.company} />
-          {formik.touched.address?.company && formik.errors.address?.company && <div>{formik.errors.address.company}</div>}
-        </div>
-        <div>
-          <label htmlFor="company_id">Company ID </label>
-          <input type="text" id="company_id" name="address.company_id" onChange={formik.handleChange} value={formik.values.address.company_id} />
-          {formik.touched.address?.company_id && formik.errors.address?.company_id && <div>{formik.errors.address.company_id}</div>}
-        </div>
-        <div>
-          <label htmlFor="tax_id">text id</label>
-          <input type="text" id="tax_id" name="address.tax_id" onChange={formik.handleChange} value={formik.values.address.tax_id} />
-          {formik.touched.address?.tax_id && formik.errors.address?.tax_id && <div>{formik.errors.address.tax_id}</div>}
-        </div>
-        <div>
-          <label htmlFor="address_1">Address 1</label>
-          <input type="text" id="address_1" name="address.address_1" onChange={formik.handleChange} value={formik.values.address.address_1} />
-          {formik.touched.address?.address_1 && formik.errors.address?.address_1 && <div>{formik.errors.address.address_1}</div>}
-        </div>
-        <div>
-          <label htmlFor="address_2">Address 2</label>
-          <input type="text" id="address_2" name="address.address_2" onChange={formik.handleChange} value={formik.values.address.address_2} />
-          {formik.touched.address?.address_2 && formik.errors.address?.address_2 && <div>{formik.errors.address.address_2}</div>}
-        </div>
-        <div>
-          <label htmlFor="city">City</label>
-          <input type="text" id="city" name="address.city" onChange={formik.handleChange} value={formik.values.address.city} />
-          {formik.touched.address?.city && formik.errors.address?.city && <div>{formik.errors.address.city}</div>}
-        </div>
-        <div>
-          <label htmlFor="postcode">Postcode</label>
-          <input type="text" id="postcode" name="address.postcode" onChange={formik.handleChange} value={formik.values.address.postcode} />
-          {formik.touched.address?.postcode && formik.errors.address?.postcode && <div>{formik.errors.address.postcode}</div>}
-        </div>
-        <div>
-          <label htmlFor="country">Country</label>
-          <input type="text" id="country" name="address.country" onChange={formik.handleChange} value={formik.values.address.country} />
-          {formik.touched.address?.country && formik.errors.address?.country && <div>{formik.errors.address.country}</div>}
-        </div>
-        <div>
-          <label htmlFor="state"> Region / State</label>
-          <input type="text" id="state" name="address.state" onChange={formik.handleChange} value={formik.values.address.state} />
-          {formik.touched.address?.state && formik.errors.address?.state && <div>{formik.errors.address.state}</div>}
-        </div>
+        {currentTab == 1 && <>
+          <div>
+            <label htmlFor="first_name">First Name : </label>
+            <input type="text" id="first_name" name="address.first_name" onChange={formik.handleChange} value={formik.values.address.first_name} />
+            {formik.touched.address?.first_name && formik.errors.address?.first_name && <div>{formik.errors.address.first_name}</div>}
+          </div>
+          <div>
+            <label htmlFor="last_name">Last Name : </label>
+            <input type="text" id="last_name" name="address.last_name" onChange={formik.handleChange} value={formik.values.address.last_name} />
+            {formik.touched.address?.last_name && formik.errors.address?.last_name && <div>{formik.errors.address.last_name}</div>}
+          </div>
+          <div>
+            <label htmlFor="company">Company : </label>
+            <input type="text" id="company" name="address.company" onChange={formik.handleChange} value={formik.values.address.company} />
+            {formik.touched.address?.company && formik.errors.address?.company && <div>{formik.errors.address.company}</div>}
+          </div>
+          <div>
+            <label htmlFor="company_id">Company ID  : </label>
+            <input type="text" id="company_id" name="address.company_id" onChange={formik.handleChange} value={formik.values.address.company_id} />
+            {formik.touched.address?.company_id && formik.errors.address?.company_id && <div>{formik.errors.address.company_id}</div>}
+          </div>
+          <div>
+            <label htmlFor="tax_id">text id : </label>
+            <input type="text" id="tax_id" name="address.tax_id" onChange={formik.handleChange} value={formik.values.address.tax_id} />
+            {formik.touched.address?.tax_id && formik.errors.address?.tax_id && <div>{formik.errors.address.tax_id}</div>}
+          </div>
+          <div>
+            <label htmlFor="address_1">Address 1 : </label>
+            <input type="text" id="address_1" name="address.address_1" onChange={formik.handleChange} value={formik.values.address.address_1} />
+            {formik.touched.address?.address_1 && formik.errors.address?.address_1 && <div>{formik.errors.address.address_1}</div>}
+          </div>
+          <div>
+            <label htmlFor="address_2">Address 2 : </label>
+            <input type="text" id="address_2" name="address.address_2" onChange={formik.handleChange} value={formik.values.address.address_2} />
+            {formik.touched.address?.address_2 && formik.errors.address?.address_2 && <div>{formik.errors.address.address_2}</div>}
+          </div>
+          <div>
+            <label htmlFor="city">City : </label>
+            <input type="text" id="city" name="address.city" onChange={formik.handleChange} value={formik.values.address.city} />
+            {formik.touched.address?.city && formik.errors.address?.city && <div>{formik.errors.address.city}</div>}
+          </div>
+          <div>
+            <label htmlFor="postcode">Postcode : </label>
+            <input type="text" id="postcode" name="address.postcode" onChange={formik.handleChange} value={formik.values.address.postcode} />
+            {formik.touched.address?.postcode && formik.errors.address?.postcode && <div>{formik.errors.address.postcode}</div>}
+          </div>
+          <div>
+            <label htmlFor="country">Country : </label>
+            <select
+              id="country"
+              name="address.country"
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              value={formik.values.address.country}
+            >
+              <option value="" label="Select a country" />
+              {contries?.map((i, j) => <option key={j} value={i.country_id} label={i.name}  > </option>)}
+            </select>
+            {formik.touched.address?.country && formik.errors.address?.country && <div>{formik.errors.address.country}</div>}
+          </div>
+          <div>
+            <label htmlFor="state">Region / State : </label>
+            <select
+              id="state"
+              name="address.state"
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              value={formik.values.address.state}
+            >
+              <option value="" label="Select a State" />
+              {allState?.map((i, j) => <option key={j} value={i.state_id} label={i.name}  > </option>)}
+            </select>
+            {formik.touched.address?.state && formik.errors.address?.state && <div>{formik.errors.address.state}</div>}
+          </div>
+          <div>
+            <button className='btn' type="button" onClick={() => setCurrentTab(currentTab + 1)}>next</button>
+          </div>
+        </>}
         {/* Repeat similar structure for other address fields */}
+        {currentTab == 2 && <>
+          <div>
+            <label htmlFor="payment_method"> Payment Method : </label>
+            <select
+              id="payment_method"
+              name="payment.payment_method"
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              value={formik.values.payment.payment_method}
+            >
+              <option value="" label="Select a State" />
+              <option value="case on delivery" label="case on delivery" />
+              <option value="online" label="online" />
+            </select>
+            {formik.touched.payment?.payment_method && formik.errors.payment?.payment_method && <div>{formik.errors.payment.payment_method}</div>}
+          </div>
+          <div>
+            <label htmlFor="transaction_id"> transaction_id : </label>
+            <input type="text" id="transaction_id" name="payment.transaction_id" onChange={formik.handleChange} value={formik.values.payment.transaction_id} />
+            {formik.touched.payment?.transaction_id && formik.errors.payment?.transaction_id && <div>{formik.errors.payment.transaction_id}</div>}
+          </div>
+          <div>
+            <button className='btn' type="button" onClick={() => setCurrentTab(currentTab + 1)}>next</button>
+          </div>
+        </>}
+        {currentTab == 3 && <>
+{/* 
+          <div>
+            <label htmlFor={`find_cource`}>find Cource:</label>
+            <input
+              type="texxt"
+              id={`find_cource`}
+              name={`find_cource`}
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+            />
+          </div>
+          <ul>
+        {suggestions.map((suggestion) => (
+          <li key={suggestion.id}>{suggestion.name}</li>
+        ))}
+      </ul> */}
+          {/* <select>
+            {cources.map((cource) => (
+              <option key={cource.id} value={cource.id}>
+                {cource.name}
+              </option>
+            ))}
+          </select> */}
 
-        <button type="submit">Submit</button>
-        <button type="button" onClick={() => router.push("/costumers")} >cancel</button>
+          {formik.values.course_order.map((course, index) => (
+            <div key={index}>
+              <label htmlFor={`course_order[${index}].course_id`}>Course ID:</label>
+              <input
+                type="text"
+                id={`course_order[${index}].course_id`}
+                name={`course_order[${index}].course_id`}
+              />
+              {formik.touched.course_order?.[index]?.course_id && formik.errors.course_order?.[index]?.course_id && (
+                <div>{formik.errors.course_order[index].course_id}</div>
+              )}
+
+              <label htmlFor={`course_order[${index}].expier_date`}>Expiration Date:</label>
+              <input
+                type="text"
+                id={`course_order[${index}].expier_date`}
+                name={`course_order[${index}].expier_date`}
+              />
+              {formik.touched.course_order?.[index]?.expier_date && formik.errors.course_order?.[index]?.expier_date && (
+                <div>{formik.errors.course_order[index].expier_date}</div>
+              )}
+            </div>
+          ))}
+
+          {/* {console.log(formik.touched, formik.errors)} */}
+          {/* {formik.touched && formik.errors && toast.warning("please full fill form.")} */}
+          <button className='btn' type="submit">Submit</button>
+          {/* <button className='btn' type="button" onClick={() => router.push("/costumers")} >cancel</button> */}
+        </>}
       </form>
       <div>
 
