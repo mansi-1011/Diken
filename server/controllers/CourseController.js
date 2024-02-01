@@ -93,8 +93,12 @@ export default class CourseController {
         : "";
 
       // const offset = start || 0;
-      const page = Math.floor(start / length);
-      const pageSize = length || 10;
+      // const page = Math.floor(start / length);
+      // const pageSize = length || 10;
+      const page = isNaN(start)
+        ? 0
+        : Math.floor(Number(start) / (length || 10));
+      const pageSize = isNaN(length) ? 10 : Number(length);
 
       const offset = page * pageSize;
       const conditions = `1 ${search_query}`;
