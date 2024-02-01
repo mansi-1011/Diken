@@ -16,6 +16,7 @@ const page = () => {
     validationSchema: costomerValidationSchema,
     onSubmit: async values => {
       try {
+        console.log(values)
         const token = localStorage.getItem('authToken');
         const response = await axios.post(BASE_URL + '/api/customer/insert', values, {
           headers: {
@@ -166,7 +167,7 @@ console.log(formik.values)
         })}
       </div>
 
-
+{console.log(formik.errors)}
 
       <form className='form_data' onSubmit={formik.handleSubmit}>
         {currentTab == 0 && <>
@@ -300,21 +301,21 @@ console.log(formik.values)
             <label htmlFor="payment_method"> Payment Method : </label>
             <select
               id="payment_method"
-              name="payment.payment_method"
+              name="payment_details.payment_method"
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              value={formik.values.payment.payment_method}
+              value={formik.values.payment_details.payment_method}
             >
               <option value="" label="Select a State" />
               <option value="case on delivery" label="case on delivery" />
               <option value="online" label="online" />
             </select>
-            {formik.touched.payment?.payment_method && formik.errors.payment?.payment_method && <div>{formik.errors.payment.payment_method}</div>}
+            {formik.touched.payment_details?.payment_method && formik.errors.payment_details?.payment_method && <div>{formik.errors.payment_details.payment_method}</div>}
           </div>
           <div>
-            <label htmlFor="transaction_id"> transaction_id : </label>
-            <input type="text" id="transaction_id" name="payment.transaction_id" onChange={formik.handleChange} value={formik.values.payment.transaction_id} />
-            {formik.touched.payment?.transaction_id && formik.errors.payment?.transaction_id && <div>{formik.errors.payment.transaction_id}</div>}
+            <label htmlFor="payment_transaction_id"> transaction_id : </label>
+            <input type="text" id="payment_transaction_id" name="payment_details.payment_transaction_id" onChange={formik.handleChange} value={formik.values.payment_details.payment_transaction_id} />
+            {formik.touched.payment_details?.payment_transaction_id && formik.errors.payment_details?.payment_transaction_id && <div>{formik.errors.payment_details.payment_transaction_id}</div>}
           </div>
           <div>
             <button className='btn' type="button" onClick={() => setCurrentTab(currentTab + 1)}>next</button>
@@ -339,35 +340,7 @@ console.log(formik.values)
                 </ul>}
             </div>
           </div>
-
-
-
-          {/* {formik.values.course_order.map((course, index) => (
-            <div key={index}>
-              <label htmlFor={`course_order[${index}].course_id`}>Course ID:</label>
-              <input
-                type="text"
-                id={`course_order[${index}].course_id`}
-                name={`course_order[${index}].course_id`}
-              />
-              {formik.touched.course_order?.[index]?.course_id && formik.errors.course_order?.[index]?.course_id && (
-                <div>{formik.errors.course_order[index].course_id}</div>
-              )}
-
-              <label htmlFor={`course_order[${index}].expier_date`}>Expiration Date:</label>
-              <input
-                type="text"
-                id={`course_order[${index}].expier_date`}
-                name={`course_order[${index}].expier_date`}
-              />
-              {formik.touched.course_order?.[index]?.expier_date && formik.errors.course_order?.[index]?.expier_date && (
-                <div>{formik.errors.course_order[index].expier_date}</div>
-              )}
-            </div>
-          ))} */}
-
           <button className='btn' type="submit">Submit</button>
-          {/* <button className='btn' type="button" onClick={() => router.push("/costumers")} >cancel</button> */}
         </>}
       </form>
       <div>
