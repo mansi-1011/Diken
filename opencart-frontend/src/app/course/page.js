@@ -24,7 +24,7 @@ const page = () => {
           },
           withCredentials: true,
         });
-        console.log(data)
+        // console.log(data)
   
           setCostomersData(data?.data);
           if (data.data.message === "User Token Not Valid") {

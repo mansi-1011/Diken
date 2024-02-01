@@ -87,7 +87,7 @@ const page = () => {
 
 
   const list = ["Information", "Address", "payment", "course order"];
-  const [currentTab, setCurrentTab] = useState(3);
+  const [currentTab, setCurrentTab] = useState(0);
 
 
 
