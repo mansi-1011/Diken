@@ -15,7 +15,7 @@ const CourseData = ({data, getAllReworkData}) => {
 
   useEffect(() => {
     const table = $(dataTableRef.current).DataTable({
-      pagingType: "full_numbers",
+      pagingType: "numbers",
       responsive: {
         details: false, // Keep details as per your design
       },
