@@ -125,9 +125,9 @@ export default class CustomerController {
             let futureDate = new Date();
             futureDate.setDate(
               currentDate.getDate() + courseOrderInfo.course_expired_days
-              );
-              const course_expired_date = futureDate.toISOString().split("T")[0];
-              console.log(futureDate ,"courseOrderInfo");
+            );
+            const course_expired_date = futureDate.toISOString().split("T")[0];
+            // console.log(futureDate, "courseOrderInfo");
 
             await customerOrderCourseModel.create({
               customer_id: customerId,
@@ -235,8 +235,52 @@ export default class CustomerController {
 
   static async updateCustomer(req, res) {
     try {
-      const { general, address } = req.body;
-      const { customer_id, name, email, password, telephone, status } = general;
+      const data = {
+        general: {
+          customer_id: 8,
+          name: "mansi2343",
+          email: "mansi243@gmail.com",
+          password: "12345",
+          telephone: "8490828266",
+          status: 1,
+        },
+        address: {
+          customer_id: 8,
+          customer_address_id: 8,
+          first_name: "mansi",
+          last_name: "patoliya3434",
+          company: "test",
+          company_id: "1454540",
+          tax_id: "45445454",
+          address_1: "120 test",
+          address_2: "tewst 3r3ere",
+          city: "surat",
+          postcode: "390566576",
+          country: "india",
+          state: "gujarat",
+        },
+        payment_details: {
+          payment_method: "case on delivery",
+          payment_transaction_id: "34343",
+        },
+        course_order: [
+          {
+            customer_order_courses_id: 10,
+            customer_id: 8,
+            course_id: 1,
+            expier_date: "22-01-2024",
+          },
+          {
+            customer_order_courses_id: 11,
+            customer_id: 8,
+            course_id: 3,
+            expier_date: "22-02-2024",
+          },
+        ],
+      };
+      const { general, address, payment_details, course_order } = data;
+      const { customer_id, name, email, telephone, status } = general;
+      const { payment_method, payment_transaction_id } = payment_details;
       const {
         customer_address_id,
         first_name,
@@ -262,9 +306,13 @@ export default class CustomerController {
           name: toLower(name),
           email: toLower(email),
           // password: await bcrypt.hash(password, 10),
+          // ip: 0,
           telephone,
           status,
           update_at: formattedDate,
+          // device_info: null,
+          payment_method,
+          payment_transaction_id,
         });
         await customerAddress.update({
           customer_address_id: customer_address_id,
@@ -281,7 +329,33 @@ export default class CustomerController {
           state: state,
           update_at: formattedDate,
         });
+        if (course_order && course_order.length > 0) {
+          for (const data of course_order) {
+            // const courseOrderInfo = await courseModel.findByCourseId(
+            //   data.course_id
+            // );
 
+            // if (!courseOrderInfo) {
+            //   return res.json({
+            //     status: false,
+            //     message: "Invalid course_id in course_order",
+            //   });
+            // }
+            // let currentDate = new Date();
+            // let futureDate = new Date();
+            // futureDate.setDate(
+            //   currentDate.getDate() + courseOrderInfo.course_expired_days
+            // );
+            // const course_expired_date = futureDate.toISOString().split("T")[0];
+
+            await customerOrderCourseModel.update({
+              customer_order_courses_status: 1,
+              customer_order_courses_expired_date: data.course_expired_date,
+              update_at: formattedDate,
+              customer_order_courses_id: data.customer_order_courses_id,
+            });
+          }
+        }
         res.json({
           status: true,
           message: "Customer Updated Successfully....",

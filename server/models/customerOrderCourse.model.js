@@ -22,18 +22,12 @@ const customerOrderCourseModel = {
   update: async (course) => {
     try {
       const result = await queryAsync(
-        "UPDATE `courses` SET `course_name`=?, `course_description`=?, `course_expired_days`=?,`course_image`=?, `course_length`=?, `course_number_of_videos`=?, `course_price`=?, `course_status`=?, `update_at`=? WHERE `course_id`=?",
+        "UPDATE `customer_order_courses` SET `customer_order_courses_status`=?, `customer_order_courses_expired_date`=?, `update_at`=? WHERE `customer_order_courses_id`=?",
         [
-          course.course_name,
-          course.course_description,
-          course.course_expired_days,
-          course.course_image,
-          course.course_length,
-          course.course_number_of_videos,
-          course.course_price,
-          course.course_status,
+          course.customer_order_courses_status,
+          course.customer_order_courses_expired_date,
           course.update_at,
-          course.course_id,
+          course.customer_order_courses_id,
         ]
       );
       return result.affectedRows;
@@ -96,7 +90,6 @@ const customerOrderCourseModel = {
       throw error;
     }
   },
-
 };
 
 export default customerOrderCourseModel;
