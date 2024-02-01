@@ -28,9 +28,9 @@ export const costomerInitialValue = {
     country: '',
     state: ''
   },
-  payment: {
+  payment_details: {
     payment_method: '',
-    transaction_id: ''
+    payment_transaction_id: ''
   },
   course_order: [
    
@@ -58,9 +58,9 @@ export const costomerValidationSchema = Yup.object().shape({
     country: Yup.string().required('Country is required'),
     state: Yup.string().required('State is required'),
   }),
-  payment: Yup.object().shape({
+  payment_details: Yup.object().shape({
     payment_method: Yup.string().required('Payment Method is required'),
-    transaction_id: Yup.string().required('Transaction id is required')
+    payment_transaction_id: Yup.string().required('Transaction id is required')
   }),
   course_order: Yup.array().of(
     Yup.object().shape({
