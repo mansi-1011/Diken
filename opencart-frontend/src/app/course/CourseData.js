@@ -32,12 +32,14 @@ const CourseData = ({data}) => {
             return `<input className="table_checkbox" style="width: 50px;" type="checkbox" value="${row.course_id}" />`;
           },
         },
-        { title: "Image", data: "course_image", render: function (data, type, row) {
-            console.log(`${BASE_URL}/api/${data}`)
-            return <img src={`${BASE_URL}/${data}`}></img>
-            
-            // return data
-        } },
+        {
+          title: 'Image',
+          data: 'course_image',
+          render: function (data, type, row) {
+            const imageUrl = `${BASE_URL}/api/${data}`;
+            return type === 'display' ? `<img src="${imageUrl}" class="source_img" alt="Course Image ${row.course_id}" />` : data;
+          }
+        },
         { title: "Product Name", data: "course_name", orderable: false },
         { title: "Price", data: "course_price" },
         { title: "Status", data: "course_status",  render: function (data, type, row) {
