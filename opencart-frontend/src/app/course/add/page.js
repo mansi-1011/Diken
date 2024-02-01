@@ -15,54 +15,46 @@ const page = () => {
   const list = ["Information", "Sources"];
   const [currentTab, setCurrentTab] = useState(0);
 
+
+
+console.log(selectedFile)
   const formik = useFormik({
     initialValues: courceinitalData,
     validationSchema: courceValideter,
-    onSubmit: async values => {
-      const formData = new FormData();
-      
-      // Append each field from values to the formData
-      Object.keys(values.course).forEach(key => {
-        formData.append(`course[${key}]`, values.course[key]);
-      });
+    onSubmit: async (values) => { 
   
-      // Append course_data properties to FormData
-      values.course_data.forEach((data, index) => {
-        Object.keys(data).forEach(key => {
-          formData.append(`course_data[${index}][${key}]`, data[key]);
-        });
-      });
-
-      for (var pair of formData.entries()) {
-        console.log(pair[0] + ', ' + pair[1]);
-      }
-      try {
-        const token = localStorage.getItem('authToken');
-        const response = await axios.post(BASE_URL + '/api/course/insert', formData, {
-          headers: {
-            'Content-Type': 'application/json',
-            'x-access-token': token
-          },
-        });
-        console.log(response)
-        // if (response.data.status == false) {
-        //   localStorage.clear()
-        //   router.replace("/login")
-        // } else if (response.data.status == true) {
-        //   router.replace("/course")
-        //   toast.success("course add successfully.")
-        // }
-      } catch (error) {
-        console.log(error)
-        // localStorage.clear()
-        // router.replace("/login")
-        // Handle errors
-      } finally {
-        // Regardless of success or failure, setSubmitting to false
-
-      }
+      const formData = new FormData();
+      formData.append("course_image", selectedFile);
+      formData.append("course_data", JSON.stringify(values));
+    
+  
+        try {
+          const token = localStorage.getItem('authToken');
+          const response = await axios.post(BASE_URL + '/api/course/insert', formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data', 
+              'x-access-token': token,
+            },
+          });
+  
+          console.log(response);
+  
+          if (response.data.status === false) {
+            localStorage.clear();
+            router.replace("/login");
+          } else if (response.data.status === true) {
+            router.replace("/course");
+            toast.success("Course added successfully.");
+          }
+        } catch (error) {
+          console.log(error);
+  
+        } finally {
+          setSubmitting(false);
+        }
     }
-  })
+  });
+  
 
 
 
@@ -78,6 +70,7 @@ const page = () => {
           course_data_length: "",
           course_count_of_view: "",
           course_sort_order: "",
+          
         },
       ],
     });
@@ -85,15 +78,9 @@ const page = () => {
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
+    console.log("82", file)
     if (file && file.type === 'image/jpeg') {
       setSelectedFile(file);
-      formik.setValues({
-        ...formik.values,
-        course: {
-          ...formik.values.course,
-          course_image: file
-        }
-      })
     } else {
       alert('Please select a valid JPG file.');
     }
@@ -106,7 +93,7 @@ const page = () => {
       <Pages />
 
       <div className="page-title"> Add Course   </div>
-
+      {console.log("fff", formik.values)}
       <div className="tab-container">
         {list.map((li, index) => {
           return (
@@ -141,7 +128,6 @@ const page = () => {
             {selectedFile && (
               <div>
                 <p>Selected File: {selectedFile.name}</p>
-                {/* You can perform further actions with the selected file */}
               </div>
             )}
           </div>
@@ -269,7 +255,7 @@ const page = () => {
           ))}
 
 
-{console.log(formik.errors)}
+          {console.log(formik.errors)}
 
           <div> <button type="button" className='btn' onClick={handleAddCourseData}>
             Add Course Data
