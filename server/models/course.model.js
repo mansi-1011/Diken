@@ -81,19 +81,19 @@ const courseModel = {
     const query = `
       SELECT * FROM courses
       WHERE course_id = ?`;
-  
+
     const [rows] = await queryAsync(query, [courseId]);
-  
+
     // Ensure the field names match the expected field names in insertCustomer
     return {
       course_id: rows.course_id,
       course_name: rows.course_name,
       course_description: rows.course_description,
-      course_expired_days: parseInt(rows.course_expired_days), // Convert to integer
+      course_expired_days: parseInt(rows.course_expired_days),
       course_image: rows.course_image,
-      course_length: parseFloat(rows.course_length), // Convert to float
-      course_number_of_videos: parseInt(rows.course_number_of_videos), // Convert to integer
-      course_price: parseFloat(rows.course_price), // Convert to float
+      course_length: parseFloat(rows.course_length),
+      course_number_of_videos: parseInt(rows.course_number_of_videos),
+      course_price: parseFloat(rows.course_price),
       course_status: rows.course_status,
       create_at: rows.create_at,
       update_at: rows.update_at,
@@ -155,6 +155,35 @@ const courseModel = {
 
     const rows = await queryAsync(query, [`%${searchString}%`]);
     return rows;
+  },
+
+  findByCustomerIid: async (customer_id) => {
+    const query = `SELECT
+      cust.*,coc.*,
+      CONCAT('[', GROUP_CONCAT(
+          '{"course_id":', c.course_id,
+          ',"course_name":"', c.course_name,
+          '","course_description":"', c.course_description,
+          '","course_expired_days":"', c.course_expired_days,
+          '","course_image":"', c.course_image,
+          '","course_length":', c.course_length,
+          ',"course_number_of_videos":', c.course_number_of_videos, 
+          ',"course_price":', c.course_price,
+          ',"course_status":', c.course_status,
+          '}'
+      ), ']') AS courses
+        FROM
+            customer cust
+        LEFT JOIN
+            customer_order_courses coc ON cust.customer_id = coc.customer_id
+        LEFT JOIN
+            courses c ON coc.course_id = c.course_id
+        WHERE
+            cust.customer_id = ?
+        GROUP BY
+      cust.customer_id, cust.name, cust.email;`;
+    const coursesWithCourseData = await queryAsync(query, [customer_id]);
+    return coursesWithCourseData;
   },
 };
 

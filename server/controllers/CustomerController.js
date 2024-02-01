@@ -235,50 +235,52 @@ export default class CustomerController {
 
   static async updateCustomer(req, res) {
     try {
-      const data = {
-        general: {
-          customer_id: 8,
-          name: "mansi2343",
-          email: "mansi243@gmail.com",
-          password: "12345",
-          telephone: "8490828266",
-          status: 1,
-        },
-        address: {
-          customer_id: 8,
-          customer_address_id: 8,
-          first_name: "mansi",
-          last_name: "patoliya3434",
-          company: "test",
-          company_id: "1454540",
-          tax_id: "45445454",
-          address_1: "120 test",
-          address_2: "tewst 3r3ere",
-          city: "surat",
-          postcode: "390566576",
-          country: "india",
-          state: "gujarat",
-        },
-        payment_details: {
-          payment_method: "case on delivery",
-          payment_transaction_id: "34343",
-        },
-        course_order: [
-          {
-            customer_order_courses_id: 10,
-            customer_id: 8,
-            course_id: 1,
-            expier_date: "22-01-2024",
-          },
-          {
-            customer_order_courses_id: 11,
-            customer_id: 8,
-            course_id: 3,
-            expier_date: "22-02-2024",
-          },
-        ],
-      };
-      const { general, address, payment_details, course_order } = data;
+      // const data = {
+      //   general: {
+      //     customer_id: 8,
+      //     name: "mansi2343",
+      //     email: "mansi243@gmail.com",
+      //     password: "12345",
+      //     telephone: "8490828266",
+      //     status: 1,
+      //   },
+      //   address: {
+      //     customer_id: 8,
+      //     customer_address_id: 8,
+      //     first_name: "mansi",
+      //     last_name: "patoliya3434",
+      //     company: "test",
+      //     company_id: "1454540",
+      //     tax_id: "45445454",
+      //     address_1: "120 test",
+      //     address_2: "tewst 3r3ere",
+      //     city: "surat",
+      //     postcode: "390566576",
+      //     country: "india",
+      //     state: "gujarat",
+      //   },
+      //   payment_details: {
+      //     payment_method: "case on delivery",
+      //     payment_transaction_id: "34343",
+      //   },
+      //   course_order: [
+      //     {
+      //       customer_order_courses_id: 10,
+      //       customer_id: 8,
+      //       course_id: 1,
+      //       expier_date: "22-01-2024",
+      //       customer_order_courses_status: 2,
+      //     },
+      //     {
+      //       customer_order_courses_id: 11,
+      //       customer_id: 8,
+      //       course_id: 3,
+      //       expier_date: "22-02-2024",
+      //       customer_order_courses_status: 2,
+      //     },
+      //   ],
+      // };
+      const { general, address, payment_details, course_order } = req.body;
       const { customer_id, name, email, telephone, status } = general;
       const { payment_method, payment_transaction_id } = payment_details;
       const {
@@ -331,26 +333,42 @@ export default class CustomerController {
         });
         if (course_order && course_order.length > 0) {
           for (const data of course_order) {
-            // const courseOrderInfo = await courseModel.findByCourseId(
-            //   data.course_id
-            // );
+            const courseOrderInfo = await courseModel.findByCourseId(
+              data.course_id
+            );
 
-            // if (!courseOrderInfo) {
-            //   return res.json({
-            //     status: false,
-            //     message: "Invalid course_id in course_order",
-            //   });
-            // }
+            if (!courseOrderInfo) {
+              return res.json({
+                status: false,
+                message: "Invalid course_id in course_order",
+              });
+            }
             // let currentDate = new Date();
-            // let futureDate = new Date();
+            // let futureDate = new Date("");
             // futureDate.setDate(
             //   currentDate.getDate() + courseOrderInfo.course_expired_days
             // );
             // const course_expired_date = futureDate.toISOString().split("T")[0];
 
+            const dateParts = data.expier_date.split("-");
+            const formattedDate = new Date(
+              `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`
+            );
+
+            const mysqlFormattedDate = formattedDate
+              .toISOString()
+              .split("T")[0];
+
+            // const customer_order_courses_status = "";
+            // if (data.customer_order_courses_status !== 1) {
+            //   customer_order_courses_status = 2;
+            // } else {
+            //   customer_order_courses_status = 1;
+            // }
+
             await customerOrderCourseModel.update({
-              customer_order_courses_status: 1,
-              customer_order_courses_expired_date: data.course_expired_date,
+              customer_order_courses_status: data.customer_order_courses_status,
+              customer_order_courses_expired_date: mysqlFormattedDate,
               update_at: formattedDate,
               customer_order_courses_id: data.customer_order_courses_id,
             });
@@ -503,7 +521,7 @@ export default class CustomerController {
             status: true,
             message: "Customer Logged In...",
             token: token,
-            customer: customer,
+            customer: customerData,
           });
         } else {
           res.json({

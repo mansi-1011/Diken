@@ -27,8 +27,6 @@ export default class CourseController {
         .slice(0, 19)
         .replace("T", " ");
 
-   
-
       const courseId = await courseModel.create({
         course_name,
         course_description,
@@ -94,9 +92,11 @@ export default class CourseController {
             ) `
         : "";
 
-      const offset = start || 0;
+      // const offset = start || 0;
+      const page = Math.floor(start / length);
       const pageSize = length || 10;
 
+      const offset = page * pageSize;
       const conditions = `1 ${search_query}`;
 
       const coursesWithCourseData = await courseModel.findAllWithCourseData(
@@ -189,7 +189,6 @@ export default class CourseController {
         .slice(0, 19)
         .replace("T", " ");
 
-
       await courseModel.update({
         course_id,
         course_name,
@@ -251,6 +250,26 @@ export default class CourseController {
       res.json({
         status: true,
         message: "course and their course data deleted successfully.",
+      });
+    } catch (error) {
+      console.log(error, "error");
+      res.json({
+        status: false,
+        message: error.message || "An error occurred while deleting users.",
+      });
+    }
+  }
+  static async getCourseByCustomer(req, res) {
+    try {
+      const customer_id = req.body.id;
+
+      const courses = await courseModel.findByCustomerIid(customer_id);
+      console.log(courses, "dfdg");
+
+      res.json({
+        status: true,
+        courses: courses,
+        message: "Customer Course Data GEt SuccessFully!!",
       });
     } catch (error) {
       console.log(error, "error");
