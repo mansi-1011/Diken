@@ -64,10 +64,9 @@ const courseModel = {
              ), ']') AS course_data
       FROM courses c
       LEFT JOIN course_data cd ON c.course_id = cd.course_id
-      WHERE ${conditions}
+     
       GROUP BY c.course_id
-      ORDER BY c.${order} 
-      LIMIT ${limit} OFFSET ${offset}
+      ORDER BY c.course_id DESC
     `;
 
       const coursesWithCourseData = await queryAsync(query);

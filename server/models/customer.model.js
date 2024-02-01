@@ -76,10 +76,10 @@ const customer = {
 
   findAll: async (conditions, order, limit, offset) => {
     const query = `
-      SELECT * FROM customer
-      WHERE ${conditions}
-      ORDER BY ${order}
-      LIMIT ${limit} OFFSET ${offset}
+    SELECT c.*, ca.*
+    FROM customer c
+    JOIN customer_address ca ON c.customer_id = ca.customer_id
+    ORDER BY c.customer_id DESC
     `;
     const customers = await queryAsync(query);
     return customers;
