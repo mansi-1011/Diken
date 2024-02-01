@@ -3,8 +3,10 @@ import "datatables.net";
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useRef } from 'react'
 import { convertDateFormat } from "@/src/utils/function";
+import axios from "axios";
+import { toast } from "react-toastify";
 
-const CourseData = ({data}) => {
+const CourseData = ({data, getAllReworkData}) => {
     console.log(data)
   const router = useRouter()
   const dataTableRef = useRef(null);
@@ -13,7 +15,11 @@ const CourseData = ({data}) => {
 
   useEffect(() => {
     const table = $(dataTableRef.current).DataTable({
-      pagingType: "numbers",
+      pagingType: "full_numbers",
+      responsive: {
+        details: false, // Keep details as per your design
+      },
+      // pagingType: "numbers",
       destroy: true,
       info: false,
       language: {
@@ -102,7 +108,7 @@ const CourseData = ({data}) => {
 
     try {
         const token = localStorage.getItem('authToken');
-        const response = await axios.delete(BASE_URL + '/api/customer/mlpdelete', {
+        const response = await axios.delete(BASE_URL + '/api/course/mlpdelete', {
             headers: {
                 'Content-Type': 'application/json',
                 'x-access-token': token
@@ -123,8 +129,11 @@ const CourseData = ({data}) => {
 
   return (
     <>
-        <table ref={dataTableRef} className="display_table" id="example" width="100%"></table>
-    </>
+    <button className="btn m-0" type="button" onClick={handleGetSelectedIds}>delete</button>
+    <div className="pagination-container"> {/* Add this container */}
+      <table ref={dataTableRef} className="display_table" id="example" width="100%"></table>
+    </div>
+  </>
   )
 }
 
