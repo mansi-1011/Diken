@@ -86,7 +86,7 @@ a {
 
 :root {
     --orange: #003A88;
-    --lorange: #FFEBD9;
+    --lorange: #c3d9f5;
     --gray: #F2F2F2;
     --lgray: #FBFBFB;
     --dgray: #A6A6A6;
@@ -203,7 +203,7 @@ th {
     border-radius: 10px;
     position: absolute;
     overflow-y: scroll;
-    max-height: 100px;
+    max-height: 200px;
     padding: 2px 5px;
     color: black;
 }
@@ -217,7 +217,20 @@ th {
     background: #f1f1f1;
 
 }
-
+.Cource_remove {
+    border: none;
+    background: none;
+    filter: drop-shadow(2px 0px 10px #ed0e19);
+}
+.Cource_remove:hover {
+    color: #ed0e19;
+}
+.course_add_line {
+    display: flex;
+}
+.course_add_line h5 {
+    margin-right: 20px;
+}
 .source_img {
     width: 50px;
     margin: 7px 0 0 0;
@@ -225,10 +238,12 @@ th {
 
 .list_cource {
     cursor: pointer;
+    padding: 4px 3px;
+    border-radius: 10px;
 }
 
 .list_cource:hover {
-    background-color: #959494;
+    background-color: #cbc7c7;
 }
 
 .cource_find::-webkit-scrollbar-thumb {
