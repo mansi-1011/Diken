@@ -4,6 +4,7 @@ import lodash from "lodash";
 import courseModel from "../models/course.model.js";
 import courseDataModel from "../models/courseData.model.js";
 import fs from "fs";
+import { log } from "console";
 
 const { _ } = lodash;
 export default class CourseController {
@@ -47,7 +48,7 @@ export default class CourseController {
             course_data_title: data.course_data_title,
             course_data_url: data.course_data_url,
             course_data_length: data.course_data_length,
-            course_data_count_of_view: data.course_count_of_view,
+            // course_data_count_of_view: data.course_count_of_view,
             course_data_sort_order: data.course_sort_order,
             create_at: formattedDate,
           });
@@ -213,7 +214,7 @@ export default class CourseController {
             course_data_title: data.course_data_title,
             course_data_url: data.course_data_url,
             course_data_length: data.course_data_length,
-            course_data_count_of_view: data.course_count_of_view,
+            // course_data_count_of_view: data.course_count_of_view,
             course_data_sort_order: data.course_sort_order,
             update_at: formattedDate,
             course_data_id: data.course_data_id,
@@ -263,23 +264,93 @@ export default class CourseController {
       });
     }
   }
+
   static async getCourseByCustomer(req, res) {
     try {
-      const customer_id = req.body.id;
+      const customer_id = req.params.id;
 
-      const courses = await courseModel.findByCustomerIid(customer_id);
-      console.log(courses, "dfdg");
+      const courses = await courseModel.findByCustomerId(customer_id);
 
-      res.json({
-        status: true,
-        courses: courses,
-        message: "Customer Course Data GEt SuccessFully!!",
+      if (!courses || courses.length === 0) {
+        return res.json({
+          status: true,
+          courseData: [],
+          message: "No courses found for the given customer ID.",
+        });
+      }
+
+      const course_ids = courses.map((course) => course.course_id);
+      const courses_data = await courseModel.findByCourseIds(course_ids);
+
+      const combinedArray = courses.map((course) => {
+        const matchingCourseData = courses_data.find(
+          (data) => data.course_id === course.course_id
+        );
+
+        return {
+          ...course,
+          ...matchingCourseData,
+        };
       });
+
+      if (combinedArray.length > 0) {
+        const dataArray = combinedArray.map((course) => {
+          if (
+            course.course_data !== null &&
+            typeof course.course_data === "string"
+          ) {
+            course.course_data = JSON.parse(course.course_data);
+          }
+          return course;
+        });
+
+        res.json({
+          status: true,
+          courseData: dataArray,
+          message: "Customer Course Data Get Successfully!!",
+        });
+      } else {
+        res.json({
+          status: true,
+          courseData: [],
+          message: "No course data found for the given customer ID.",
+        });
+      }
     } catch (error) {
       console.log(error, "error");
       res.json({
         status: false,
-        message: error.message || "An error occurred while deleting users.",
+        message:
+          error.message || "An error occurred while fetching customer courses.",
+      });
+    }
+  }
+
+  static async courseVideoCount(req, res) {
+    try {
+      const course_data_id = req.params.id;
+
+      const courseData = await courseDataModel.getCourseDataById(
+        course_data_id
+      );
+
+      const course_data_count_of_view =
+        courseData.course_data_count_of_view + 1;
+
+      const data = await courseDataModel.updateCourseVideoCount({
+        course_data_count_of_view,
+        course_data_id,
+      });
+
+      res.json({
+        status: true,
+        message: "Course Count Plus Successfully!!",
+      });
+    } catch (error) {
+      res.json({
+        status: false,
+        message:
+          error.message || "An error occurred while fetching customer courses.",
       });
     }
   }

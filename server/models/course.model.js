@@ -156,33 +156,58 @@ const courseModel = {
     return rows;
   },
 
-  findByCustomerIid: async (customer_id) => {
-    const query = `SELECT
-      cust.*,coc.*,
-      CONCAT('[', GROUP_CONCAT(
-          '{"course_id":', c.course_id,
-          ',"course_name":"', c.course_name,
-          '","course_description":"', c.course_description,
-          '","course_expired_days":"', c.course_expired_days,
-          '","course_image":"', c.course_image,
-          '","course_length":', c.course_length,
-          ',"course_number_of_videos":', c.course_number_of_videos, 
-          ',"course_price":', c.course_price,
-          ',"course_status":', c.course_status,
-          '}'
-      ), ']') AS courses
-        FROM
-            customer cust
-        LEFT JOIN
-            customer_order_courses coc ON cust.customer_id = coc.customer_id
-        LEFT JOIN
-            courses c ON coc.course_id = c.course_id
-        WHERE
-            cust.customer_id = ?
-        GROUP BY
-      cust.customer_id, cust.name, cust.email;`;
-    const coursesWithCourseData = await queryAsync(query, [customer_id]);
-    return coursesWithCourseData;
+  findByCustomerId: async (customer_id) => {
+    try {
+      const mainQuery = `
+                      SELECT *
+                      FROM customer_order_courses 
+                      WHERE customer_id = ? AND DATE_FORMAT(customer_order_courses_expired_date, '%Y-%m-%d') >= CURDATE()
+                    `;
+
+      console.log("Query Parameters:", customer_id);
+
+      // Executing the main query
+      const coursesWithCourseData = await queryAsync(mainQuery, [customer_id]);
+
+      console.log("Main Query Results:", coursesWithCourseData);
+
+      return coursesWithCourseData;
+    } catch (error) {
+      console.error(error);
+      throw error; // Propagate the error to the caller
+    }
+  },
+
+  findByCourseIds: async (course_ids) => {
+    try {
+      const placeholders = Array(course_ids.length).fill("?").join(", ");
+
+      const query = `
+        SELECT c.course_id, c.course_name, c.course_description, c.course_expired_days,
+              c.course_image, c.course_length, c.course_number_of_videos, c.course_price, c.course_status,
+              CONCAT('[', GROUP_CONCAT(
+                CONCAT(
+                  '{"course_data_id":', cd.course_data_id,
+                  ',"course_data_type":"', cd.course_data_type,
+                  '","course_data_title":"', cd.course_data_title,
+                  '","course_data_url":"', cd.course_data_url,
+                  '","course_data_length":"', cd.course_data_length,
+                  '","course_count_of_view":', cd.course_data_count_of_view,
+                  ',"course_sort_order":', cd.course_data_sort_order, '}'
+                )
+              ), ']') AS course_data
+        FROM courses c
+        LEFT JOIN course_data cd ON c.course_id = cd.course_id
+        WHERE c.course_id IN (${placeholders})
+        GROUP BY c.course_id
+        ORDER BY c.course_id DESC
+      `;
+
+      const coursesWithCourseData = await queryAsync(query, course_ids);
+      return coursesWithCourseData;
+    } catch (error) {
+      throw error;
+    }
   },
 };
 

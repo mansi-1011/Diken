@@ -75,6 +75,8 @@ route.delete("/mlpdelete", auth, CourseController.deleteMultipleCourse);
 
 route.get("/getcours/:id", CourseController.getCourseByCustomer);
 
+route.get("/vidcount/:id", CourseController.courseVideoCount)
+
 // mobile api routes End
 
 export default route;
