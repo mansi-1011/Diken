@@ -25,27 +25,6 @@ const customer = {
     }
   },
 
-  // update: async (customerData) => {
-  //   try {
-  //     const result = await queryAsync(
-  //       "UPDATE `customer` SET `name`=?, `email`=?, `telephone`=?,`, `status`=?, `update_at`=?,`payment_method`=?,`payment_transaction_id`=? WHERE `customer_id`=?",
-  //       [
-  //         customerData.name,
-  //         customerData.email,
-  //         customerData.telephone,
-  //         customerData.status,
-  //         customerData.update_at,
-  //         customerData.payment_method,
-  //         customerData.payment_transaction_id,
-  //         customerData.customer_id,
-  //       ]
-  //     );
-  //     return result.affectedRows;
-  //   } catch (error) {
-  //     throw error;
-  //   }
-  // },
-
   update: async (customerData) => {
     try {
       const result = await queryAsync(

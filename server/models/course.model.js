@@ -83,7 +83,6 @@ const courseModel = {
 
     const [rows] = await queryAsync(query, [courseId]);
 
-    // Ensure the field names match the expected field names in insertCustomer
     return {
       course_id: rows.course_id,
       course_name: rows.course_name,
