@@ -4,7 +4,7 @@ const courseDataModel = {
   create: async (courseData) => {
     try {
       const result = await queryAsync(
-        "INSERT INTO `course_data`(`course_id`, `course_data_type`, `course_data_title`, `course_data_url`, `course_data_length`, `course_data_sort_order`, `create_at`) VALUES (?,?,?,?,?,?,?,?)",
+        "INSERT INTO `course_data`(`course_id`, `course_data_type`, `course_data_title`, `course_data_url`, `course_data_length`, `course_data_sort_order`, `create_at`) VALUES (?,?,?,?,?,?,?)",
         [
           courseData.course_id,
           courseData.course_data_type,

@@ -33,6 +33,8 @@ route.use(cookieParser());
 
 route.post("/auth", CustomerController.login);
 
+route.post("/fogetpass", CustomerController.forgetPassword);
+
 // mobile api routes End
 
 // Web api routes Start

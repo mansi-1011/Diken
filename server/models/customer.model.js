@@ -159,6 +159,18 @@ const customer = {
       throw error;
     }
   },
+
+  updatePassword: async (customerData) => {
+    try {
+      const result = await queryAsync(
+        "UPDATE `customer` SET `password`=?  WHERE `email`=?",
+        [customerData.password, customerData.email]
+      );
+      return result.affectedRows;
+    } catch (error) {
+      throw error;
+    }
+  },
 };
 
 export default customer;

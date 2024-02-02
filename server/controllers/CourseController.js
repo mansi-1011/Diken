@@ -4,7 +4,6 @@ import lodash from "lodash";
 import courseModel from "../models/course.model.js";
 import courseDataModel from "../models/courseData.model.js";
 import fs from "fs";
-import { log } from "console";
 
 const { _ } = lodash;
 export default class CourseController {
@@ -40,16 +39,30 @@ export default class CourseController {
         create_at: formattedDate,
       });
 
+      // if (course_data && course_data.length > 0) {
+      //   for (const data of course_data) {
+      //     await courseDataModel.create({
+      //       course_id: courseId,
+      //       course_data_type: data.course_data_type,
+      //       course_data_title: data.course_data_title,
+      //       course_data_url: data.course_data_url,
+      //       course_data_length: data.course_data_length,
+      //       // course_data_count_of_view: data.course_count_of_view,
+      //       course_data_sort_order:index,
+      //       create_at: formattedDate,
+      //     });
+      //   }
+      // }
+
       if (course_data && course_data.length > 0) {
-        for (const data of course_data) {
+        for (const [index, data] of course_data.entries()) {
           await courseDataModel.create({
             course_id: courseId,
             course_data_type: data.course_data_type,
             course_data_title: data.course_data_title,
             course_data_url: data.course_data_url,
             course_data_length: data.course_data_length,
-            // course_data_count_of_view: data.course_count_of_view,
-            course_data_sort_order: data.course_sort_order,
+            course_data_sort_order: index,
             create_at: formattedDate,
           });
         }
@@ -158,8 +171,64 @@ export default class CourseController {
 
   static async updateCourse(req, res) {
     try {
-      const { course, course_data } = JSON.parse(req.body.course_data);
+      // const { course, course_data } = JSON.parse(req.body.course_data);
 
+      const data = {
+        course: {
+          course_id: 15,
+          course_name: "eweweerere",
+          course_description: "erere",
+          course_expired_days: "23",
+          course_length: "232",
+          course_number_of_videos: "23",
+          course_price: "34",
+          course_status: "1",
+        },
+        course_data: [
+          {
+            course_data_id: 5,
+            course_data_type: "pdf",
+            course_data_title: "ronak",
+            course_data_url:
+              "https://stackoverflow.com/questions/77066715/setting-image-path-correctly-in-nodejs-and-displaying-it-in-react",
+            course_data_length: "343",
+            course_count_of_view: "",
+            course_sort_order: "2",
+          },
+          {
+            course_data_id: 4,
+            course_data_type: "mp4",
+            course_data_title: "bansi",
+            course_data_url:
+              "https://stackoverflow.com/questions/77066715/setting-image-path-correctly-in-nodejs-and-displaying-it-in-react",
+            course_data_length: "bansi",
+            course_count_of_view: "",
+            course_sort_order: "2",
+          },
+          {
+            course_data_id: 7,
+            course_data_type: "pdf",
+            course_data_title: "meet",
+            course_data_url:
+              "https://stackoverflow.com/questions/77066715/setting-image-path-correctly-in-nodejs-and-displaying-it-in-react",
+            course_data_length: "23",
+            course_count_of_view: "",
+            course_sort_order: "2",
+          },
+          {
+            course_data_id: 6,
+            course_data_type: "mp4",
+            course_data_title: "weer",
+            course_data_url:
+              "https://stackoverflow.com/questions/77066715/setting-image-path-correctly-in-nodejs-and-displaying-it-in-react",
+            course_data_length: "23",
+            course_count_of_view: "",
+            course_sort_order: "2",
+          },
+        ],
+      };
+
+      const { course, course_data } = data;
       const {
         course_id,
         course_name,
@@ -171,14 +240,14 @@ export default class CourseController {
         course_status,
       } = course;
       const courses = await courseModel.findById(course_id);
-
-      const image = _.first(req.files.course_image);
+      var image = "";
+      if (req.files !== undefined) {
+        image = _.first(req.files.course_image);
+      }
       var new_image = "";
-
       if (image !== undefined) {
         new_image = `${image.destination}/${image.filename}`;
         try {
-          console.log(courses.course_image, "courses.course_image");
           fs.unlinkSync(`../server/${courses.course_image}`, (err) => {
             if (err) throw err;
           });
@@ -199,7 +268,7 @@ export default class CourseController {
         course_name,
         course_description,
         course_expired_days,
-        course_image: new_image,
+        // course_image: new_image,
         course_length,
         course_number_of_videos,
         course_price,
@@ -207,19 +276,31 @@ export default class CourseController {
         update_at: formattedDate,
       });
 
-      if (course_data && course_data.length > 0) {
-        for (const data of course_data) {
-          await courseDataModel.update({
-            course_data_type: data.course_data_type,
-            course_data_title: data.course_data_title,
-            course_data_url: data.course_data_url,
-            course_data_length: data.course_data_length,
-            // course_data_count_of_view: data.course_count_of_view,
-            course_data_sort_order: data.course_sort_order,
-            update_at: formattedDate,
-            course_data_id: data.course_data_id,
-          });
-        }
+      // if (course_data && course_data.length > 0) {
+      //   for (const data of course_data) {
+      //     await courseDataModel.update({
+      //       course_data_type: data.course_data_type,
+      //       course_data_title: data.course_data_title,
+      //       course_data_url: data.course_data_url,
+      //       course_data_length: data.course_data_length,
+      //       // course_data_count_of_view: data.course_count_of_view,
+      //       course_data_sort_order: data.course_sort_order,
+      //       update_at: formattedDate,
+      //       course_data_id: data.course_data_id,
+      //     });
+      //   }
+      // }
+
+      for (const [index, data] of course_data.entries()) {
+        await courseDataModel.update({
+          course_data_type: data.course_data_type,
+          course_data_title: data.course_data_title,
+          course_data_url: data.course_data_url,
+          course_data_length: data.course_data_length,
+          course_data_sort_order: index,
+          update_at: formattedDate,
+          course_data_id: data.course_data_id,
+        });
       }
 
       res.json({

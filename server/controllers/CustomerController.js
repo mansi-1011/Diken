@@ -127,7 +127,6 @@ export default class CustomerController {
               currentDate.getDate() + courseOrderInfo.course_expired_days
             );
             const course_expired_date = futureDate.toISOString().split("T")[0];
-            // console.log(futureDate, "courseOrderInfo");
 
             await customerOrderCourseModel.create({
               customer_id: customerId,
@@ -529,6 +528,38 @@ export default class CustomerController {
             message: "Incorrect Password. Please try again.",
           });
         }
+      }
+    } catch (error) {
+      console.log(error, "error");
+      res.json({
+        status: false,
+        message:
+          error.message || "An error occurred while processing the login.",
+      });
+    }
+  }
+
+  static async forgetPassword(req, res) {
+    try {
+      const { email, password } = req.body;
+      const customerData = await customer.findByEmail(toLower(email));
+      if (!customerData) {
+        res.json({
+          status: false,
+          message: "Invalid Customer Email..",
+        });
+      } else {
+        var newPassword = await bcrypt.hash(password, 10);
+
+        await customer.updatePassword({
+          password: newPassword,
+          email,
+        });
+
+        res.json({
+          status: true,
+          message: "Password update successfully.",
+        });
       }
     } catch (error) {
       console.log(error, "error");
