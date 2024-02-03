@@ -17,44 +17,44 @@ const page = () => {
 
 
 
-console.log(selectedFile)
+  // console.log(selectedFile)
   const formik = useFormik({
     initialValues: courceinitalData,
     validationSchema: courceValideter,
-    onSubmit: async (values) => { 
-  
+    onSubmit: async (values) => {
+
       const formData = new FormData();
       formData.append("course_image", selectedFile);
       formData.append("course_data", JSON.stringify(values));
-    
-  
-        try {
-          const token = localStorage.getItem('authToken');
-          const response = await axios.post(BASE_URL + '/api/course/insert', formData, {
-            headers: {
-              'Content-Type': 'multipart/form-data', 
-              'x-access-token': token,
-            },
-          });
-  
-          console.log(response);
-  
-          if (response.data.status === false) {
-            localStorage.clear();
-            router.replace("/login");
-          } else if (response.data.status === true) {
-            router.replace("/course");
-            toast.success("Course added successfully.");
-          }
-        } catch (error) {
-          console.log(error);
-  
-        } finally {
-          setSubmitting(false);
+
+
+      try {
+        const token = localStorage.getItem('authToken');
+        const response = await axios.post(BASE_URL + '/api/course/insert', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            'x-access-token': token,
+          },
+        });
+
+        console.log(response);
+
+        if (response.data.status === false) {
+          localStorage.clear();
+          router.replace("/login");
+        } else if (response.data.status === true) {
+          router.replace("/course");
+          toast.success("Course added successfully.");
         }
+      } catch (error) {
+        console.log(error);
+
+      } finally {
+        setSubmitting(false);
+      }
     }
   });
-  
+
 
 
 
@@ -70,7 +70,7 @@ console.log(selectedFile)
           course_data_length: "",
           course_count_of_view: "",
           course_sort_order: "",
-          
+
         },
       ],
     });
@@ -87,13 +87,25 @@ console.log(selectedFile)
   };
 
 
+
+  const handleRemoveCource = (e) => {
+    console.log("e", e)
+    console.log("formik.values.course_data", formik.values.course_data)
+    const updatedCourseOrder = formik.values.course_data.filter((value, j) => j !== e);
+    formik.setValues({
+      ...formik.values,
+      course_data: updatedCourseOrder,
+    });
+  }
+  console.log("fff", formik.values)
+
   return (
     <div>
       <Navbar logout="logout" />
       <Pages />
 
       <div className="page-title"> Add Course   </div>
-      {console.log("fff", formik.values)}
+
       <div className="tab-container">
         {list.map((li, index) => {
           return (
@@ -181,88 +193,97 @@ console.log(selectedFile)
             <button className='btn' type="button" onClick={() => setCurrentTab(currentTab + 1)}>next</button>
           </div>
         </>}
-        {currentTab == 1 && <>
-          {formik.values.course_data.map((courseData, index) => (
-            <div key={index}>
-              <div >
-                <label htmlFor='course_data_type'>course data type :</label>
-                <input
-                  type="text"
-                  name={`course_data[${index}].course_data_type`}
-                  onChange={formik.handleChange}
-                  value={courseData.course_data_type}
+        <div>
+          {currentTab == 1 && <>
+            {formik.values.course_data.map((courseData, index) => (
+              <div className='add_cource_data' key={index}>
+                <div >
+                  <label htmlFor='course_data_type'>course data type :</label>
+                  <input
+                    type="text"
+                    name={`course_data[${index}].course_data_type`}
+                    onChange={formik.handleChange}
+                    value={courseData.course_data_type}
 
-                />
-                {formik.touched.course_data && formik.errors.course_data && (
-                  <div>{formik.errors.course_data[index]?.course_data_type}</div>
-                )}
+                  />
+                  {formik.touched.course_data && formik.errors.course_data && (
+                    <div>{formik.errors.course_data[index]?.course_data_type}</div>
+                  )}
+                </div>
+                <div >
+                  <label htmlFor='course_data_title'>course data title :</label>
+                  <input
+                    type="text"
+                    name={`course_data[${index}].course_data_title`}
+                    onChange={formik.handleChange}
+                    value={courseData.course_data_title}
+
+                  />
+                  {formik.touched.course_data && formik.errors.course_data && (
+                    <div>{formik.errors.course_data[index]?.course_data_title}</div>
+                  )}
+                </div>
+                <div>
+                  <label htmlFor='course_data_url'>course data url :</label>
+                  <input
+                    type="text"
+                    name={`course_data[${index}].course_data_url`}
+                    onChange={formik.handleChange}
+                    value={courseData.course_data_url}
+
+                  />
+                  {formik.touched.course_data && formik.errors.course_data && (
+                    <div>{formik.errors.course_data[index]?.course_data_url}</div>
+                  )}
+                </div>
+
+                <div>
+                  <label htmlFor='course_data_length'>course data length :</label>
+                  <input
+                    type="text"
+                    name={`course_data[${index}].course_data_length`}
+                    onChange={formik.handleChange}
+                    value={courseData.course_data_length}
+
+                  />
+                  {formik.touched.course_data && formik.errors.course_data && (
+                    <div>{formik.errors.course_data[index]?.course_data_length}</div>
+                  )}
+                </div>
+                <div>
+                  <label htmlFor='course_sort_order'>course sort order :</label>
+                  <input
+                    type="text"
+                    name={`course_data[${index}].course_sort_order`}
+                    onChange={formik.handleChange}
+                    value={courseData.course_sort_order}
+
+                  />
+                  {formik.touched.course_data && formik.errors.course_data && (
+                    <div>{formik.errors.course_data[index]?.course_sort_order}</div>
+                  )}
+                </div>
+
+
+                <div>
+                  <button type='button' className='Cource_remove' onClick={() => handleRemoveCource(index)}>
+                    remove
+                  </button>
+                </div>
               </div>
-              <div >
-                <label htmlFor='course_data_title'>course data title :</label>
-                <input
-                  type="text"
-                  name={`course_data[${index}].course_data_title`}
-                  onChange={formik.handleChange}
-                  value={courseData.course_data_title}
 
-                />
-                {formik.touched.course_data && formik.errors.course_data && (
-                  <div>{formik.errors.course_data[index]?.course_data_title}</div>
-                )}
-              </div>
-              <div>
-                <label htmlFor='course_data_url'>course data url :</label>
-                <input
-                  type="text"
-                  name={`course_data[${index}].course_data_url`}
-                  onChange={formik.handleChange}
-                  value={courseData.course_data_url}
-
-                />
-                {formik.touched.course_data && formik.errors.course_data && (
-                  <div>{formik.errors.course_data[index]?.course_data_url}</div>
-                )}
-              </div>
-
-              <div>
-                <label htmlFor='course_data_length'>course data length :</label>
-                <input
-                  type="text"
-                  name={`course_data[${index}].course_data_length`}
-                  onChange={formik.handleChange}
-                  value={courseData.course_data_length}
-
-                />
-                {formik.touched.course_data && formik.errors.course_data && (
-                  <div>{formik.errors.course_data[index]?.course_data_length}</div>
-                )}
-              </div>
-              <div>
-                <label htmlFor='course_sort_order'>course sort order :</label>
-                <input
-                  type="text"
-                  name={`course_data[${index}].course_sort_order`}
-                  onChange={formik.handleChange}
-                  value={courseData.course_sort_order}
-
-                />
-                {formik.touched.course_data && formik.errors.course_data && (
-                  <div>{formik.errors.course_data[index]?.course_sort_order}</div>
-                )}
-              </div>
-            </div>
-
-          ))}
+            ))}
 
 
-          {console.log(formik.errors)}
+            {/* {console.log(formik.errors)} */}
 
-          <div> <button type="button" className='btn' onClick={handleAddCourseData}>
-            Add Course Data
-          </button>     <button className='btn' type="submit">Submit</button></div>
+            <div> <button type="button" className='btn' onClick={handleAddCourseData}>
+              Add Course Data
+            </button>     <button className='btn' type="submit">Submit</button></div>
 
 
-        </>}
+          </>}
+        </div>
 
       </form>
     </div>

@@ -235,7 +235,13 @@ th {
     width: 50px;
     margin: 7px 0 0 0;
 }
-
+.add_cource_data {
+    display: flex;
+    align-items: center;
+    border: 1px solid #97aac5;
+    padding: 10px;
+    border-radius: 10px;
+}
 .list_cource {
     cursor: pointer;
     padding: 4px 3px;
