@@ -5,9 +5,10 @@ import React, { useEffect, useRef } from 'react'
 import { convertDateFormat } from "@/src/utils/function";
 import axios from "axios";
 import { toast } from "react-toastify";
+import Cookies from "js-cookie";
 
 const CourseData = ({data, getAllReworkData}) => {
-    console.log(data)
+    // console.log(data)
   const router = useRouter()
   const dataTableRef = useRef(null);
   const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -107,7 +108,7 @@ const CourseData = ({data, getAllReworkData}) => {
     }).get();
 
     try {
-        const token = localStorage.getItem('authToken');
+        const token = Cookies.get('authToken');
         const response = await axios.delete(BASE_URL + '/api/course/mlpdelete', {
             headers: {
                 'Content-Type': 'application/json',
@@ -120,7 +121,7 @@ const CourseData = ({data, getAllReworkData}) => {
             toast.success("Customer Delete successfully.");
         
     } catch (error) {
-        localStorage.clear()
+        Cookies.remove('authToken')
         router.replace("/login");
         console.error('Error:', error.message);
     } 

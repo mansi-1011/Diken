@@ -4,11 +4,15 @@ import Pages from '@/src/component/pages/Pages';
 import React, { useEffect, useState } from 'react';
 
 import axios from 'axios';
-import CostomersData from './CostomersData';  
 import { useRouter } from 'next/navigation';
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL;  
+import dynamic from "next/dynamic";
+import Cookies from 'js-cookie';
 
+const CostomersData = dynamic(() => import("./costomersData"), {
+  ssr: false,
+});
 const Page = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -18,7 +22,8 @@ const Page = () => {
     setLoading(true);
 
     try {
-      const token = localStorage.getItem('authToken');
+      const token = Cookies.get('authToken');
+    
       const  data  = await axios.get(BASE_URL + '/api/customer', {
         headers: {
           'x-access-token': token,
@@ -30,7 +35,7 @@ const Page = () => {
         setCostomersData(data?.data);
 
         if (data.data.message === "User Token Not Valid") {
-          localStorage.clear()
+          Cookies.remove('authToken')
           router.replace("/login")
         }
       
@@ -52,8 +57,8 @@ const Page = () => {
       <Pages />
 
       <div className="page-title">
-        Costomers{' '}
-        <button className="pointer" onClick={() => router.push('/costumers/add')}>
+        Costomers
+        <button className="pointer" onClick={() => router.push('/costumersadd')}>
           + Add New
         </button>
       </div>

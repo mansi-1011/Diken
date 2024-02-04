@@ -1,4 +1,5 @@
 import axios from "axios";
+import Cookies from "js-cookie";
 import { useRouter } from 'next/router';
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -9,7 +10,7 @@ export const getAPI = async (url) => {
   const router = useRouter();  // Move this line inside the function
 
   try {
-    const token = localStorage.getItem("authToken");
+    const token = Cookies.get("authToken");
     const { data } = await axios.get(BASE_URL + url, {
       headers: {
         'x-access-token': token,
@@ -18,14 +19,14 @@ export const getAPI = async (url) => {
     });
 
     if (data.message === false) {
-      localStorage.clear()
+      Cookies.remove("authToken")
       router.push('/login');
     } else if (data.message === true) {
       return data;
     }
     // console.log(data)
   } catch (err) {
-    localStorage.clear()
+    Cookies.remove("authToken")
     router.push('/login');
   }
 };
@@ -33,7 +34,7 @@ export const getAPI = async (url) => {
 
 export const deleteAPI = async (url) => {
   try {
-    const token = localStorage.getItem("authToken");
+    const token = Cookies.getItem("authToken");
     const { data } = await axios.delete(BASE_URL + url,  {  headers: {
       'x-access-token': token,
   } }, {
@@ -60,7 +61,7 @@ export const postLoginAPI = async (url, json) => {
 export const postAPI = async (url, json) => {
 
   try {
-    const token = localStorage.getItem("authToken");
+    const token = Cookies.getItem("authToken");
     const { data } = await axios.post(BASE_URL + url,  {  headers: {
       'x-access-token': token,
   } }, json, {
@@ -75,7 +76,7 @@ export const postAPI = async (url, json) => {
 
 export const putAPI = async (url, json) => {
   try {
-    const token = localStorage.getItem("authToken");
+    const token = Cookies.getItem("authToken");
     const { data } = await axios.put(BASE_URL + url, {  headers: {
       'x-access-token': token,
   } }, json, {

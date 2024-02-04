@@ -1,6 +1,10 @@
-/** @type {import('next').NextConfig} */
+// next.config.mjs
 const nextConfig = {
-  reactStrictMode: true,
+  distDir: '_next',
+  experimental: {
+    appDir: true,
+  },
+  reactStrictMode: false,
 };
 
 export default nextConfig;

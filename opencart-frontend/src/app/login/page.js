@@ -14,6 +14,7 @@ import { toast } from "react-toastify";
 import viewIcon from "@/src/assets/icon/view_icon.png";
 import hiddenIcon from "@/src/assets/icon/hidden_icon.png";
 import Navbar from "@/src/component/navbar/Navbar";
+import Cookies from "js-cookie";
 
 export default function Login() {
   const route = useRouter();
@@ -36,7 +37,8 @@ export default function Login() {
           const data = await postLoginAPI("/api/user/auth", e);
           console.log(data)
           if (data.status === true) {
-            localStorage.setItem("authToken", data.token);
+            // Cookies.setItem("authToken", data.token);
+            Cookies.set('authToken', data.token);
             // dispatch(userData(data.business_info));
             route.replace("/home");
             action.resetForm();

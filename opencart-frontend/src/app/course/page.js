@@ -3,10 +3,15 @@ import Navbar from '@/src/component/navbar/Navbar'
 import Pages from '@/src/component/pages/Pages'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
-import CourseData from './CourseData'
 import axios from 'axios'
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL;  
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL; 
+import dynamic from "next/dynamic";
+import Cookies from 'js-cookie'
+
+const CourseData = dynamic(() => import("./CourseData"), {
+  ssr: false,
+}); 
 
 const page = () => {
     const router = useRouter()
@@ -17,7 +22,7 @@ const page = () => {
       setLoading(true);
   
       try {
-        const token = localStorage.getItem('authToken');
+        const token = Cookies.get('authToken');
         const  data  = await axios.get(BASE_URL + '/api/course', {
           headers: {
             'x-access-token': token,
@@ -28,7 +33,7 @@ const page = () => {
   
           setCostomersData(data?.data);
           if (data.data.message === "User Token Not Valid") {
-            localStorage.clear()
+            Cookies.remove('authToken')
             router.replace("/login")
           }
         
@@ -49,7 +54,7 @@ const page = () => {
       <Pages />
       <div className="page-title">
       Course{' '}
-        <button className="pointer" onClick={() => router.push('/course/add')}>
+        <button className="pointer" onClick={() => router.push('/courseadd')}>
           + Add New
         </button>
       </div>
