@@ -5,6 +5,7 @@ import { convertDateFormat } from "@/src/utils/function";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
+import Cookies from "js-cookie";
 
 const CostomersData = ({ data, getAllReworkData }) => {
   console.log(data)
@@ -109,7 +110,7 @@ const CostomersData = ({ data, getAllReworkData }) => {
     }).get();
 
     try {
-        const token = localStorage.getItem('authToken');
+        const token = Cookies.get('authToken');
         const response = await axios.delete(BASE_URL + '/api/customer/mlpdelete', {
             headers: {
                 'Content-Type': 'application/json',
@@ -122,19 +123,19 @@ const CostomersData = ({ data, getAllReworkData }) => {
             toast.success("Customer Delete successfully.");
         
     } catch (error) {
-        localStorage.clear()
+        Cookies.remove("authToken")
         router.replace("/login");
         console.error('Error:', error.message);
     } 
-};
+}
 
 
   return (
-    <>
+    <div>
         <button className="btn m-0" type="button" onClick={(handleRefreshClick) => handleGetSelectedIds(handleRefreshClick)}>delete</button>
-      {/* </div> */}
+    
       <table ref={dataTableRef} className="display_table" id="example" width="100%"></table>
-    </>
+    </div>
   );
 };
 

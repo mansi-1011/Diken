@@ -4,11 +4,12 @@ import style from './navbar.module.css'
 import Image from 'next/image'
 import navlogo from "@/src/assets/logo.png"
 import { useRouter } from 'next/navigation';
+import Cookies from 'js-cookie';
 
 const Navbar = ({ logout }) => {
   const router = useRouter()
   const handleLogout = async () => {
-    localStorage.clear()
+    Cookies.remove('authToken')
     router.replace("/login");
   }
   return (
